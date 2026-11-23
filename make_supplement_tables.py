@@ -576,10 +576,24 @@ def s1_dose(out_dir):
                       if c.get(x) != ref.get(x) and x != 'model_suffix')
         check(diff == ['lag_scale'] and float(c['lag_scale']) == k,
               f'dose arm {m}: configs differ in {diff}')
+    for k, m in ((0.75, 'a1lagx075'), (0.25, 'a1lagx025')):
+        for sd in (302, 303):
+            r = M.read_json(os.path.join(REPO, src(
+                f'train_log/PPVC/config_10x25+ppvc-mixed+a1lagx05-2k-s{sd}.json')))
+            cp = os.path.join(REPO, f'train_log/PPVC/config_10x25+ppvc-mixed+{m}-2k-s{sd}.json')
+            if not os.path.exists(cp):
+                continue
+            c = M.read_json(cp)
+            diff = sorted(x for x in set(c) | set(r)
+                          if c.get(x) != r.get(x) and x not in ('model_suffix', 'vali_data_path',
+                                                                 'bound_lag_free_reward',
+                                                                 'bound_lag_free_features'))
+            check(diff == ['lag_scale'] and float(c['lag_scale']) == k,
+                  f'dose arm {m} s{sd}: configs differ in {diff}')
     arms = (('1 (full waits)', 'Three', 'TrainFull', M.FULL, 'ContTenLagFull'),
-            ('0.75', 'One', 'TrainThreeQuarter', M.DOSE_TQ, 'ContTenLagThreeQuarter'),
+            ('0.75', 'Three', 'TrainThreeQuarterThree', M.DOSE_TQ3, 'ContTenLagThreeQuarter'),
             ('0.5 (SLAB)', 'Three', 'TrainHalf', M.HSTAR, 'ContTenLagHalf'),
-            ('0.25', 'One', 'TrainQuarter', M.DOSE_Q, 'ContTenLagQuarter'),
+            ('0.25', 'Three', 'TrainQuarterThree', M.DOSE_Q3, 'ContTenLagQuarter'),
             ('0 (no waits)', 'Three', 'TrainLagFree', M.LAGFREE, 'ContTenLagZero'))
     head = [' & & & \\multicolumn{5}{c}{Default factory, modules per order} & '
             '\\FactoryTight{} stations \\\\',
@@ -765,11 +779,14 @@ def seed_block(title, tpl, mean_macro, short):
 
 def s4_bound(out_dir):
     ra, ma = seed_block('Lag-augmented bound', M.FULL, 'TrainFull', 'Full')
-    rf, mf = seed_block('Lag-free bound', M.LFBOUND, None, 'LfBound')
-    for a, b in zip(ma, mf):
-        if not (a.pending or b.pending):
-            bold_best([a, b])
-    dif, ci = (['\\makecell[l]{Lag-free minus\\\\lag-augmented (h)}'],
+    rf, mf = seed_block('Lag-free bound in the reward and the state', M.LFBOUND, None, 'LfBound')
+    rr, mr = seed_block('Lag-free bound in the reward only', M.LFREW, None, 'LfRew')
+    rs, ms = seed_block('Lag-free bound in the state only', M.LFFEAT, None, 'LfFeat')
+    for col in zip(ma, mf, mr, ms):
+        present = [c for c in col if not c.pending]
+        if len(present) == len(col):
+            bold_best(list(col))
+    dif, ci = (['\\makecell[l]{Lag-free in both\\\\minus lag-augmented (h)}'],
                 ['95\\% CI (h)'])
     for S, ds in S4_COLS:
         def bt(d=ds):
@@ -787,9 +804,66 @@ def s4_bound(out_dir):
                 check(lo.value <= 0 <= hi.value, f'bound CI at {S} excludes 0')
             elif S in ('Twenty', 'Thirty'):
                 check(hi.value < 0, f'bound CI at {S} reaches 0')
-    rows = ra + rf + ['MID', dif, ci]
+    rows = ra + rf + rr + rs + ['MID', dif, ci]
     return write_table(out_dir, 's4_bound.tex', '@{}lcccccc@{}', S4_HEAD,
                        rows, 7)
+
+
+def s4_seeds(out_dir):
+    """Five-seed check: seeds 301-305 of the lag-augmented bound and of
+    the lag-free bound in the reward only, per-seed means and the five-seed
+    mean; bold marks the shorter of the two five-seed means per column."""
+    seeds5 = (301, 302, 303, 304, 305)
+
+    def block(title, tpl, short):
+        rows = [('BLOCK', title)]
+        for sd in seeds5:
+            row = [f'Seed {sd}']
+            for S, ds in S4_COLS:
+                t = tpl.format(s=sd)
+                src(M.res_rel(t, ds))
+                row.append(num(lambda t=t, d=ds: M.result(t, d).mean(), 'h',
+                               f'{short}{S}'))
+            rows.append(row)
+        row, means = ['Mean of five seeds'], []
+        for S, ds in S4_COLS:
+            c = num(lambda d=ds: float(np.mean([M.result(tpl.format(s=sd), d).mean()
+                                                 for sd in seeds5])), 'h', f'{short}Five{S}')
+            row.append(c)
+            means.append(c)
+        rows.append(row)
+        return rows, means
+
+    ra, ma = block('Lag-augmented bound in the reward and the state', M.FULL, 'FiveRef')
+    rr, mr = block('Lag-free bound in the reward only', M.LFREW, 'FiveRew')
+    for a, b in zip(ma, mr):
+        if not (a.pending or b.pending):
+            bold_best([a, b])
+    return write_table(out_dir, 's4_seeds.tex', '@{}lcccccc@{}', S4_HEAD,
+                       ra + rr, 7)
+
+
+def s5_peakseeds(out_dir):
+    """Peaks of work in progress and of the waiting areas at 50 and 80
+    modules for every SLAB seed and for SPT and LLF (Section S5)."""
+    meths = (('SLAB, seed 301', 'SLAB-s301'), ('SLAB, seed 302', 'SLAB-s302'),
+             ('SLAB, seed 303', 'SLAB-s303'), ('SPT', 'SPT'), ('LLF', 'LLF'))
+    sizes = [(S, ds) for S, ds in M.SIZES if S in ('Fifty', 'Eighty')]
+    keys = (('wip_peak', 'WipPk'), ('buffer_peak', 'BufPk'), ('buffer_mean', 'BufMn'))
+    body = []
+    for label, meth in meths:
+        row = [label]
+        for S, ds in sizes:
+            src(f'test_results/PPVC/wip_peaks/{ds}/wip_{meth}.json')
+            for key, short in keys:
+                row.append(num(lambda d=ds, m=meth, k=key: float(np.mean(
+                    [float(q[k]) for q in M.wip_rec(d, m)['per_instance']])),
+                    'h', f'Seeds{short}{meth}{S}'))
+        body.append(row)
+    head = [' & \\multicolumn{3}{c}{50 modules} & \\multicolumn{3}{c}{80 modules} \\\\',
+            '\\cmidrule(lr){2-4}\\cmidrule(l){5-7}',
+            'Method & WIP peak & Wait peak & Wait mean & WIP peak & Wait peak & Wait mean \\\\']
+    return write_table(out_dir, 's5_peakseeds.tex', '@{}lcccccc@{}', head, body, 7)
 
 
 def s4_aids(out_dir):
@@ -1547,6 +1621,11 @@ def s11_hyper(out_dir):
         ['Discount factor $\\gamma$'] + both('gamma', lambda x: dec(x, 0))
         + [dec(ht['gamma'], 0)],
         ['GAE parameter $\\lambda$'] + both('gae_lambda') + [DASH],
+        ['Advantage estimate', 'GAE', 'GAE', 'Monte-Carlo return'],
+        ['Reward divided by', 'largest $p$ of batch', 'largest $p$ of batch',
+         'none (hours)'],
+        ['Standardized within an episode', 'advantages', 'advantages', 'returns'],
+        ['Gradient clipping', 'none', 'none', 'none'],
         ['Clipping parameter'] + both('eps_clip') + [str(ht['eps_clip'])],
         ['Epochs per update'] + both('k_epochs') + [str(ht['K_epochs'])],
         ['Minibatch size'] + both('minibatch_size') + [str(ht['minibatch_size'])],
@@ -1579,6 +1658,23 @@ def s11_hyper(out_dir):
          f'{hm["n_latent_critic"]}'],
     ]
     check(d['num_heads_OAB'] == d['num_heads_MAB'], 'DANIEL heads')
+    # the four code-level rows above are read from the training code itself
+    ppo_src = open(os.path.join(REPO, 'model', 'PPO.py')).read()
+    env_src = open(os.path.join(REPO, 'fjsp_env_same_op_nums.py')).read()
+    hgnn_src = open(os.path.join(REPO, 'backbones', 'hgnn', 'PPO_model.py')).read()
+    check('self.gamma * self.gae_lambda * advantage' in ppo_src
+          and 't_advantage_seq.std(dim=1, keepdim=True)' in ppo_src,
+          'DANIEL/PLAN: GAE with per-trajectory advantage standardization')
+    check('self.pt_lower_bound = np.min(self.op_pt)' in env_src
+          and 'self.pt_upper_bound - self.pt_lower_bound' in env_src,
+          'DANIEL/PLAN: times and the bound reward divided by the largest p of the batch '
+          '(the minimum over [E, N, M] is 0, the entry of an incompatible station)')
+    check('(rewards - rewards.mean()) / (rewards.std() + 1e-5)' in hgnn_src,
+          'HGNN: Monte-Carlo returns standardized per episode')
+    check(all('clip_grad' not in x for x in (ppo_src, hgnn_src)), 'no gradient clipping')
+    src('model/PPO.py')
+    src('fjsp_env_same_op_nums.py')
+    src('backbones/hgnn/PPO_model.py')
     check(d['use_lag_features'] is False and d['use_type_embedding'] is False,
           'SLAB policy without the aids')
     head = ['Setting & DANIEL (SLAB) & PLAN & HGNN \\\\']
@@ -2700,6 +2796,54 @@ def s1_shellsearch(out_dir):
     return write_table(out_dir, 's1_shellsearch.tex', '@{}lcc@{}', head, rows, 3)
 
 
+OOD_LABELS = {'Nominal': 'None (test orders)', 'LagHalf': 'Every wait $\\times0.5$',
+              'LagOneHalf': 'Every wait $\\times1.5$', 'LagTwo': 'Every wait $\\times2$',
+              'LagThree': 'Every wait $\\times3$',
+              'Spread': 'Duration spread $\\pm40\\%$',
+              'StTwenty': '20 stations', 'StThirty': '30 stations',
+              'StThirtyFive': '35 stations'}
+
+
+def s7_ood(out_dir):
+    """Shifted test orders (Section S7): sigma of the SPT schedules, mean
+    makespans of SLAB (three seeds, no retraining), SPT and LLF, the paired
+    95% bootstrap interval of SLAB - SPT, and the orders on which SLAB is
+    shorter than, equal to, or longer than SPT. Bold: the shortest mean."""
+    head = ['Change & $\\sigma$ & \\makecell{SPT above\\\\bound (\\%)} & SLAB & SPT & LLF & '
+            '\\makecell{SLAB $-$ SPT,\\\\95\\% CI (h)} & '
+            '\\makecell{Shorter/equal/\\\\longer} & $p$ \\\\']
+    rows = []
+    for S, n in M.OOD_SIZES:
+        first = M.OOD_CONDS[0][1].format(n=n)
+        rows.append(('BLOCK', f'{n} modules, {M.N_INST.get(first, "")} orders'))
+        for C, tpl, _note in M.OOD_CONDS:
+            ds = tpl.format(n=n)
+            for m in ['SPT', 'LLF'] + [f'SLAB-s{x}' for x in M.OOD_SEEDS]:
+                src(f'test_results/PPVC/ood/{ds}/ood_{m}.json')
+            sig = mac(f'OodSigma{C}{S}', lambda d=ds: float(np.mean(
+                [float(q['sigma']) for q in M.ood_rec(d, 'SPT')['per_instance'][:20]])), 'share')
+            cells = [mac(f'Ood{mk}{C}{S}', lambda d=ds, m=meth: float(np.mean(M.ood_inst(d, m)[0])),
+                         'h') for mk, meth in (('Slab', 'SLAB'), ('Spt', 'SPT'), ('Llf', 'LLF'))]
+            try:
+                a, _ = M.ood_inst(ds, 'SLAB')
+                b, _ = M.ood_inst(ds, 'SPT')
+                _d, lo, hi = boot(a, b)
+                ci, counts = ci_text(lo, hi), wtl(a, b)
+            except Missing as err:
+                ci = counts = pend(f'Ood{C}{S}', str(err)).text
+            def over(d=ds):
+                a, _ = M.ood_inst(d, 'SPT')
+                return 100 * float(np.mean(a / M.ood_chain_lb(d, len(a)) - 1))
+            lb = mac(f'OodSptOverLb{C}{S}', over, 'pct')
+            if C == 'Nominal':
+                pc = DASH
+            else:
+                pc = mac(f'OodHolmP{C}{S}', lambda C=C, S=S: M.ood_holm()[(C, S)][1], 'p')
+            bold_best(cells)
+            rows.append([OOD_LABELS[C], sig, lb] + cells + [ci, counts, pc])
+    return write_table(out_dir, 's7_ood.tex', '@{}lcccccccc@{}', head, rows, 9)
+
+
 def revision_tables(out_dir):
     out = [s4_tightness(out_dir), s1_shell(out_dir), s1_reach(out_dir),
            s2_train(out_dir), s2_uncertain(out_dir)]
@@ -2710,7 +2854,7 @@ def revision_tables(out_dir):
         print('s2_disrupt10.tex and s2_disrupt50.tex not written '
               '(PAPER_DISRUPT_STATS=0)')
     out += [s8_rules(out_dir), s8_severity(out_dir), s8_stability50(out_dir),
-            s1_workers(out_dir), s1_shellsearch(out_dir)]
+            s1_workers(out_dir), s1_shellsearch(out_dir), s7_ood(out_dir)]
     return out
 
 
@@ -2739,6 +2883,8 @@ def main(argv=None):
         out.append(s2_stats(args.out_dir))
         out.append(s3_hgnn(args.out_dir))
         out.append(s4_bound(args.out_dir))
+        out.append(s4_seeds(args.out_dir))
+        out.append(s5_peakseeds(args.out_dir))
         out.append(s4_aids(args.out_dir))
         s4_curves()
         out.append(s5_byproducts(args.out_dir))

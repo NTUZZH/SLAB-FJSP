@@ -2959,6 +2959,533 @@ def revision_batch():
 
 
 
+
+# ---- order-size regimes, bound signal, attribution -------------------------
+REGIMES_REL = 'test_results/PPVC/cpsat_regimes/cpsat_regimes.json'
+SIGNAL_DIR = 'test_results/PPVC/bound_signal'
+SIGNAL_TRAIN = 'vali_10x25+ppvc-mixed-lagx0.5'
+LFREW = 'greedy+10x25+ppvc-mixed+a1lfrew-2k-s{s}'     # lag-free bound in the reward only
+LFFEAT = 'greedy+10x25+ppvc-mixed+a1lffeat-2k-s{s}'   # lag-free bound in the state only
+DOSE_Q3 = 'greedy+10x25+ppvc-mixed+a1lagx025-2k-s{s}'
+DOSE_TQ3 = 'greedy+10x25+ppvc-mixed+a1lagx075-2k-s{s}'
+
+
+@functools.lru_cache(maxsize=None)
+def regimes():
+    path = os.path.join(REPO, REGIMES_REL)
+    if not os.path.exists(path):
+        raise Missing(REGIMES_REL, 'file absent')
+    d = read_json(path)
+    for S, ds in SIZES:
+        r = d['sizes'][S]
+        check(r['dataset'] == ds, f'{REGIMES_REL}: {S} dataset')
+        # the SLAB reference of the analysis equals the paper's SLAB mean
+        check(abs(r['mean_slab'] - raw_of(f'Hstar{S}')) < 1e-9,
+              f'{REGIMES_REL}: {S} SLAB mean differs from Hstar{S}')
+    return d
+
+
+def regime_run(S, run):
+    rr = [r for r in regimes()['sizes'][S]['runs'] if r['run'] == run]
+    check(len(rr) == 1, f'{REGIMES_REL}: {S} {run}')
+    return rr[0]
+
+
+def regime_at(S, run, cp):
+    c = regime_run(S, run)['checkpoints'][cp]
+    check(c['mean_incumbent'] is not None, f'{S} {run} {cp}: not every order solved')
+    return float(c['mean_incumbent'])
+
+
+@functools.lru_cache(maxsize=None)
+def signal(name):
+    rel_p = f'{SIGNAL_DIR}/bound_signal_{name}.json'
+    path = os.path.join(REPO, rel_p)
+    if not os.path.exists(path):
+        raise Missing(rel_p, 'file absent')
+    d = read_json(path)
+    check(d['model'] == HSTAR_MODEL and d['device'] == 'cpu', f'{rel_p}: model/device')
+    if not name.startswith('vali'):
+        check(d['n_orders'] == N_INST[name], f'{rel_p}: {d["n_orders"]} orders')
+    return d['orders']
+
+
+def signal_mean(name, field):
+    return float(np.mean([o[field] for o in signal(name) if o[field] is not None]))
+
+
+def signal_sets():
+    return [ds for _S, ds in SIZES] + [SIGNAL_TRAIN]
+
+
+def regimes_batch():
+    # CP-SAT at the time of one SLAB schedule, at 60 s, and the proven bounds
+    ex = 'Decision map (CP-SAT regimes)'
+    for S, ds in SIZES:
+        define(f'CpMatchedSpt{S}', ex, 'CpMatchedSpt', S, 'h',
+               lambda S=S: regime_at(S, 'warm-spt', 'matched'), REGIMES_REL,
+               'mean CP-SAT incumbent (4 workers, from SPT) at the time of one SLAB '
+               'schedule on one CPU core (cost_table_v3.json)')
+        define(f'CpMatchedCold{S}', ex, 'CpMatchedCold', S, 'h',
+               lambda S=S: regime_at(S, 'cold', 'matched'), REGIMES_REL,
+               'mean CP-SAT incumbent (4 workers, cold) at the time of one SLAB schedule')
+        define(f'CpSixtySpt{S}', ex, 'CpSixtySpt', S, 'h',
+               lambda S=S: regime_at(S, 'warm-spt', '60'), REGIMES_REL,
+               'mean CP-SAT incumbent (4 workers, from SPT) at 60 s')
+        define(f'CpSlabOverBound{S}', ex, 'CpSlabOverBound', S, 'r',
+               lambda S=S: regimes()['sizes'][S]['mean_slab_over_bound'], REGIMES_REL,
+               'mean over orders of SLAB (3-seed mean) / best lower bound proven by any CP-SAT run')
+        define(f'CpSlabOverBest{S}', ex, 'CpSlabOverBest', S, 'pct',
+               lambda S=S: 100 * (regimes()['sizes'][S]['mean_slab_over_best_known'] - 1),
+               REGIMES_REL, '100*(mean over orders of SLAB / best known makespan - 1); best '
+               'known = minimum over all CP-SAT runs, the memetic algorithm and the SLAB seeds')
+    for nm, fn in (('Lo', min), ('Hi', max)):
+        define(f'CpSlabOverBest{nm}', ex, 'CpSlabOverBest', nm, 'pct',
+               lambda fn=fn: fn(100 * (regimes()['sizes'][S]['mean_slab_over_best_known'] - 1)
+                                for S in ('Twenty', 'Thirty', 'Fifty', 'Eighty')), REGIMES_REL,
+               f'{nm} over 20 to 80 modules of CpSlabOverBest')
+    for S in ('Fifty', 'Eighty'):
+        define(f'CpPolOne{S}', ex, 'CpPolOne', S, 'h',
+               lambda S=S: regime_at(S, 'warm-policy', '1'), REGIMES_REL,
+               'mean CP-SAT incumbent at 1 s when started from the SLAB schedule (seed 301, CPU)')
+        define(f'CpPolSixtyGain{S}', ex, 'CpPolSixtyGain', S, 'pct',
+               lambda S=S: -pct(regime_at(S, 'warm-policy', '60'), raw_of(f'CpWarmPolHint{S}')),
+               f'{REGIMES_REL}, CpWarmPolHint{S}',
+               '100*(1 - CP-SAT incumbent at 60 s / SLAB hint), CP-SAT started from the SLAB schedule')
+        define(f'CpLongSptSixty{S}', ex, 'CpLongSptSixty', S, 'h',
+               lambda S=S: regime_at(S, 'warm-spt-1800', '60'), REGIMES_REL,
+               '1800-s runs from SPT, first 20 orders, incumbent at 60 s')
+
+    define('BreakEvenOrders', ex, 'scalars', 'BreakEvenOrders', 'round_int',
+           lambda: raw_of('TrainGpuHours') * 3600 / 600, 'TrainGpuHours',
+           'training wall-clock of one 2000-update run (quiet GPU) / 600 s of CP-SAT per order')
+
+    # by-product measures of the makespan schedules (Section S5), main-text values
+    ex = 'By-products (Section VI-B)'
+    def byp(ds, method, key):
+        rel_p = f'test_results/PPVC/{ds}/byproducts_hstar/byproducts_{method}.json'
+        path = os.path.join(REPO, rel_p)
+        if not os.path.exists(path):
+            raise Missing(rel_p, 'file absent')
+        d = read_json(path)
+        check(d['dataset'] == ds and d['validated'] is True
+              and len(d['per_instance']) == N_INST[ds], f'{rel_p}: header')
+        if method == 'greedy':
+            check(d['model'] == HSTAR_MODEL, f'{rel_p}: model')
+        return float(np.mean([float(r[key]) for r in d['per_instance']]))
+    for S, ds in SIZES:
+        for mk, method in (('Slab', 'greedy'), ('Spt', 'SPT')):
+            for nm, key, kind, scale in (('Flow', 'flow_mean', 'h', 1.0),
+                                         ('Wip', 'wip_mean', 'h', 1.0),
+                                         ('Util', 'util_mean', 'pct', 100.0),
+                                         ('Tard', 'tard_total', 'round_int', 1.0)):
+                define(f'Byp{nm}{mk}{S}', ex, f'Byp{nm}{mk}', S, kind,
+                       lambda d=ds, m=method, k=key, sc=scale: sc * byp(d, m, k),
+                       f'test_results/PPVC/{ds}/byproducts_hstar/byproducts_{method}.json',
+                       f'mean over orders of {key}; SLAB = seed 301 on the CPU')
+
+    # reward signal of the two bounds and a station-capacity bound
+    ex = 'Bound signal (Section IV-B, S4)'
+    for S, ds in SIZES:
+        define(f'BoundCap{S}', ex, 'BoundCap', S, 'share',
+               lambda d=ds: signal_mean(d, 's0_ratio_cap'), f'{SIGNAL_DIR}/bound_signal_{ds}.json',
+               'mean over orders of the station-capacity bound at s_0 / makespan (SLAB seed 301)')
+        define(f'BoundMaxInit{S}', ex, 'BoundMaxInit', S, 'share',
+               lambda d=ds: signal_mean(d, 's0_ratio_max'), f'{SIGNAL_DIR}/bound_signal_{ds}.json',
+               'mean of max(chain, capacity) at s_0 / makespan')
+        for b, nm in (('aug', 'Aug'), ('free', 'Free')):
+            define(f'BoundZero{nm}{S}', ex, f'BoundZero{nm}', S, 'pct',
+                   lambda d=ds, b=b: 100 * signal_mean(d, f'zero_share_{b}'),
+                   f'{SIGNAL_DIR}/bound_signal_{ds}.json',
+                   f'mean share (%) of steps with zero reward under the {b} bound')
+    tr_rel = f'{SIGNAL_DIR}/bound_signal_{SIGNAL_TRAIN}.json'
+    define('BoundSigTrainAug', ex, 'BoundSigTrain', 'aug', 'share',
+           lambda: signal_mean(SIGNAL_TRAIN, 's0_ratio_aug'), tr_rel,
+           'lag-augmented bound at s_0 / makespan on the halved-wait 10-module validation orders')
+    define('BoundSigTrainFree', ex, 'BoundSigTrain', 'free', 'share',
+           lambda: signal_mean(SIGNAL_TRAIN, 's0_ratio_free'), tr_rel,
+           'lag-free bound at s_0 / makespan on the halved-wait 10-module validation orders')
+    define('BoundCapTrain', ex, 'BoundCap', 'Train', 'share',
+           lambda: signal_mean(SIGNAL_TRAIN, 's0_ratio_cap'), tr_rel,
+           'station-capacity bound at s_0 / makespan on the halved-wait validation orders')
+    define('BoundMaxInitTrain', ex, 'BoundMaxInit', 'Train', 'share',
+           lambda: signal_mean(SIGNAL_TRAIN, 's0_ratio_max'), tr_rel,
+           'max(chain, capacity) at s_0 / makespan on the halved-wait validation orders')
+    for b, nm in (('aug', 'Aug'), ('free', 'Free')):
+        define(f'BoundZero{nm}Train', ex, f'BoundZero{nm}', 'Train', 'pct',
+               lambda b=b: 100 * signal_mean(SIGNAL_TRAIN, f'zero_share_{b}'), tr_rel,
+               f'mean share (%) of zero-reward steps under the {b} bound, halved-wait validation orders')
+    for b, nm in (('aug', 'Aug'), ('free', 'Free')):
+        vals = lambda b=b: [100 * signal_mean(d, f'zero_share_{b}') for d in signal_sets()]
+        define(f'BoundZero{nm}Lo', ex, f'BoundZero{nm}', 'Lo', 'round_int',
+               lambda v=vals: min(v()), SIGNAL_DIR,
+               'lowest set mean (%) of zero-reward steps over the five test sets and the training orders')
+        define(f'BoundZero{nm}Hi', ex, f'BoundZero{nm}', 'Hi', 'round_int',
+               lambda v=vals: max(v()), SIGNAL_DIR,
+               'highest set mean (%) of zero-reward steps over the five test sets and the training orders')
+
+    # attribution: change of the mean makespan (%) when one part is changed
+    ex = 'Attribution table'
+    rows = (  # macro stem, changed variant, reference, note
+        ('AttrFull', 'TrainFull', 'TrainHalf', 'full waits vs halved waits'),
+        ('AttrZero', 'TrainLagFree', 'TrainHalf', 'no waits vs halved waits'),
+        ('AttrBoth', None, 'TrainFull', 'lag-free bound in reward and state vs lag-augmented, full waits'),
+        ('AttrAids', 'TrainFullAids', 'TrainFull', 'input aids vs none, full waits'),
+        ('AttrPlan', 'PlanHalf', 'TrainHalf', 'PLAN vs DANIEL, halved waits'),
+        ('AttrHgnn', 'HgnnHalf', 'TrainHalf', 'HGNN (seed 300) vs DANIEL, halved waits'),
+        ('AttrSpt', 'Spt', 'Hstar', 'SPT rule vs SLAB in the same transition'),
+    )
+    for S, ds in SIZES:
+        for stem, var, ref, note in rows:
+            if var is None:
+                fn = lambda S=S, ds=ds: pct(mean_of(LFBOUND, ds), mean_of(FULL, ds))
+                srcs = f'{src(LFBOUND, ds)}, {src(FULL, ds)}'
+            else:
+                fn = lambda S=S, v=var, r=ref: pct(shown(f'{v}{S}'), shown(f'{r}{S}'))
+                srcs = f'{var}{S}, {ref}{S}'
+            define(f'{stem}{S}', ex, stem, S, 'pct', fn, srcs,
+                   f'100*(variant/reference - 1): {note}')
+        for stem, tpl, ref_tpl, note in (
+                ('AttrRew', LFREW, FULL, 'lag-free bound in the reward only, full waits'),
+                ('AttrFeat', LFFEAT, FULL, 'lag-free bound in the state only, full waits'),
+                ('AttrQuarter', DOSE_Q3, HSTAR, 'factor 0.25 vs 0.5, three seeds'),
+                ('AttrThreeQuarter', DOSE_TQ3, HSTAR, 'factor 0.75 vs 0.5, three seeds')):
+            define(f'{stem}{S}', ex, stem, S, 'pct',
+                   lambda t=tpl, r=ref_tpl, d=ds: pct(mean_of(t, d), mean_of(r, d)),
+                   f'{src(tpl, ds)}, {src(ref_tpl, ds)}', f'100*(variant/reference - 1): {note}')
+
+    # three-seed means of the factors 0.25 and 0.75 (S1.5), incl. the 15-station factory
+    for stem, tpl in (('TrainQuarterThree', DOSE_Q3), ('TrainThreeQuarterThree', DOSE_TQ3)):
+        for S, ds in SIZES + (TIGHT,):
+            define(f'{stem}{S}', ex, stem, S, 'h', lambda t=tpl, d=ds: mean_of(t, d),
+                   src(tpl, ds), H_MEAN)
+
+    # five-seed check of the lag-free bound in the reward only (seeds 304
+    # and 305 of this arm and of the lag-augmented reference): per-seed means at 50 and 80 modules, five-seed
+    # means, the longest reference seed, and the count of reward-only seeds
+    # longer than every reference seed at both sizes
+    seeds5 = (301, 302, 303, 304, 305)
+
+    def seed_mean(tpl, s, ds):
+        return float(result(tpl.format(s=s), ds).mean())
+
+    for S, ds in ((k, d) for k, d in SIZES if k in ('Fifty', 'Eighty')):
+        define(f'FiveRefMean{S}', ex, 'FiveRefMean', S, 'h',
+               lambda d=ds: float(np.mean([seed_mean(FULL, s, d) for s in seeds5])),
+               src(FULL, ds), 'mean over seeds 301-305 of per-seed mean makespan (h), lag-augmented bound')
+        define(f'FiveRewMean{S}', ex, 'FiveRewMean', S, 'h',
+               lambda d=ds: float(np.mean([seed_mean(LFREW, s, d) for s in seeds5])),
+               src(LFREW, ds), 'mean over seeds 301-305 of per-seed mean makespan (h), lag-free bound in the reward only')
+        define(f'FiveRefMax{S}', ex, 'FiveRefMax', S, 'h',
+               lambda d=ds: max(seed_mean(FULL, s, d) for s in seeds5),
+               src(FULL, ds), 'longest per-seed mean over seeds 301-305 (h), lag-augmented bound')
+        for s in (303, 305):
+            define(f'FiveRewSeed{"Three" if s == 303 else "Five"}{S}', ex, f'FiveRewSeed{s}', S, 'h',
+                   lambda d=ds, sd=s: seed_mean(LFREW, sd, d),
+                   src(LFREW, ds), f'per-seed mean makespan (h), seed {s}, lag-free bound in the reward only')
+
+    def long_count():
+        n = 0
+        for s in seeds5:
+            if all(seed_mean(LFREW, s, d) > max(seed_mean(FULL, r, d) for r in seeds5)
+                   for k, d in SIZES if k in ('Fifty', 'Eighty')):
+                n += 1
+        return n
+    define('FiveRewLongCount', ex, 'FiveRewLongCount', '', 'int', long_count,
+           src(LFREW, SIZES[3][1]), 'reward-only seeds (of 301-305) longer than every lag-augmented seed at 50 and 80 modules')
+
+
+    # significance flags: 1 if the 95% paired bootstrap interval of the mean
+    # per-order difference (variant minus reference, seed means per order)
+    # excludes zero, else 0; the table bolds the cells flagged 1
+    sig_rows = (('RepairDaniel', REPAIR_DANIEL, LAGFREE), ('RepairPlan', REPAIR_PLAN, PLAN_A0),
+                ('RepairHgnn', HGNN_REPAIR, HGNN_A0), ('Full', FULL, HSTAR),
+                ('Zero', LAGFREE, HSTAR), ('Both', LFBOUND, FULL), ('Aids', FULLAIDS, FULL),
+                ('Plan', PLANHALF, HSTAR), ('Hgnn', HGNN_HALF, HSTAR), ('Spt', None, HSTAR),
+                ('Rew', LFREW, FULL), ('Feat', LFFEAT, FULL), ('Quarter', DOSE_Q3, HSTAR),
+                ('ThreeQuarter', DOSE_TQ3, HSTAR))
+    for S, ds in SIZES:
+        for stem, tpl, ref_tpl in sig_rows:
+            t = rule_tag('SPT', ds) if tpl is None else tpl
+
+            def flag(t=t, r=ref_tpl, d=ds):
+                _m, (lo, hi) = paired_mean_diff_ci(inst_of(t, d), inst_of(r, d),
+                                                   n_boot=2000, seed=0)
+                return 1 if (lo > 0 or hi < 0) else 0
+            define(f'AttrSig{stem}{S}', ex, f'AttrSig{stem}', S, 'int', flag,
+                   f'{src(t, ds)}, {src(ref_tpl, ds)}',
+                   '1 if the 95% percentile bootstrap interval (2000 resamples of the orders, '
+                   'default_rng(0)) of the mean per-order difference excludes zero')
+
+
+OOD_CONDS = (  # macro stem, test-set name template ({n} = modules), description
+    ('Nominal', '{n}x25+ppvc-mixed', 'nominal test orders (re-run on the CPU)'),
+    ('LagHalf', '{n}x25+ppvc-mixed-lagx0.5-ood', 'every wait x0.5'),
+    ('LagOneHalf', '{n}x25+ppvc-mixed-lagx1.5', 'every wait x1.5'),
+    ('LagTwo', '{n}x25+ppvc-mixed-lagx2', 'every wait x2'),
+    ('LagThree', '{n}x25+ppvc-mixed-lagx3', 'every wait x3'),
+    ('Spread', '{n}x25+ppvc-mixed-ptdev0.4', 'durations drawn +-40% around nominal'),
+    ('StTwenty', '{n}x20+ppvc-mixed-ood', '20 stations'),
+    ('StThirty', '{n}x30+ppvc-mixed-ood', '30 stations'),
+    ('StThirtyFive', '{n}x35+ppvc-mixed-ood', '35 stations'),
+)
+OOD_SIZES = (('Ten', 10), ('Fifty', 50))
+OOD_SEEDS = (301, 302, 303)
+
+
+def ood_rec(ds, method):
+    rel_p = f'test_results/PPVC/ood/{ds}/ood_{method}.json'
+    path = os.path.join(REPO, rel_p)
+    if not os.path.exists(path):
+        raise Missing(rel_p, 'file absent')
+    d = read_json(path)
+    check(d['dataset'] == ds and d['method'] == method and d['validated'] is True
+          and len(d['per_instance']) == d['n_instances'], f'{rel_p}: header')
+    if method.startswith('SLAB-s'):
+        check(d['model'] == f'10x25+ppvc-mixed+a1lagx05-2k-s{method[6:]}', f'{rel_p}: model')
+    return d
+
+
+def ood_inst(ds, method):
+    """Per-order makespans in instance order; SLAB = mean of the three seeds."""
+    if method == 'SLAB':
+        recs = [ood_rec(ds, f'SLAB-s{s}') for s in OOD_SEEDS]
+    else:
+        recs = [ood_rec(ds, method)]
+    ids = [r['instance'] for r in recs[0]['per_instance']]
+    for r in recs[1:]:
+        check([q['instance'] for q in r['per_instance']] == ids, f'{ds}: instance order')
+    return np.mean([[float(q['makespan']) for q in r['per_instance']] for r in recs], axis=0), ids
+
+
+_OOD_LB = {}
+
+
+def ood_chain_lb(ds, n):
+    """Lag-augmented job-chain bound (4) at the first state of the first n
+    orders of a set: max over modules of the sum of minimum processing times
+    plus the waits between them (= analysis_bound_tightness.chain_bounds at s_0)."""
+    if ds not in _OOD_LB:
+        from ppvc_instance_generator import load_instance
+        stems = sorted(glob.glob(os.path.join(REPO, 'data', 'PPVC', ds, 'instance_*.fjs')))
+        out = []
+        for st in stems[:n]:
+            jl, pt, meta = load_instance(st[:-len('.fjs')])
+            mp = np.where(pt > 0, pt, np.inf).min(axis=1)
+            lag = np.asarray(meta['time_lag'], dtype=float)
+            best, first = 0.0, 0
+            for m in jl:
+                last = first + int(m)
+                best = max(best, float(mp[first:last].sum() + lag[first:last - 1].sum()))
+                first = last
+            out.append(best)
+        check(len(out) == n, f'{ds}: {len(out)} orders for the bound, expected {n}')
+        _OOD_LB[ds] = np.array(out)
+    return _OOD_LB[ds]
+
+
+def ood_batch():
+    """Out-of-distribution transfer (Section VI-E): SLAB (three seeds, no
+    retraining) against SPT and LLF on test sets that change one property."""
+    ex = 'Out-of-distribution transfer'
+    for C, tpl, note in OOD_CONDS:
+        for S, n in OOD_SIZES:
+            ds = tpl.format(n=n)
+            srcs = f'test_results/PPVC/ood/{ds}/ood_*.json'
+            for mk, meth in (('Slab', 'SLAB'), ('Spt', 'SPT'), ('Llf', 'LLF')):
+                define(f'Ood{mk}{C}{S}', ex, f'Ood{mk}{C}', S, 'h',
+                       lambda d=ds, m=meth: float(np.mean(ood_inst(d, m)[0])), srcs,
+                       f'mean makespan, {note}' + ('; SLAB = mean of seeds 301-303' if meth == 'SLAB' else ''))
+
+            def gain(d=ds):
+                a, ia = ood_inst(d, 'SLAB')
+                b, ib = ood_inst(d, 'SPT')
+                check(ia == ib, f'{d}: SLAB and SPT instances differ')
+                return 100 * (1 - a.mean() / b.mean())
+            define(f'OodGain{C}{S}', ex, 'OodGain', f'{C}{S}', 'pct', gain, srcs,
+                   f'100*(1 - SLAB/SPT), mean makespans; {note}')
+
+            def gain_llf(d=ds):
+                a, _ = ood_inst(d, 'SLAB')
+                b, _ = ood_inst(d, 'LLF')
+                return 100 * (1 - a.mean() / b.mean())
+            define(f'OodGainLlf{C}{S}', ex, 'OodGainLlf', f'{C}{S}', 'pct', gain_llf, srcs,
+                   f'100*(1 - SLAB/LLF), mean makespans; {note}')
+
+            def worst(d=ds):
+                b = ood_inst(d, 'SPT')[0].mean()
+                return min(100 * (1 - ood_inst_seed(d, s) / b) for s in OOD_SEEDS)
+            define(f'OodGainWorst{C}{S}', ex, 'OodGainWorst', f'{C}{S}', 'pct', worst, srcs,
+                   f'smallest over the three seeds of 100*(1 - SLAB seed/SPT); {note}')
+
+            def flag(d=ds):
+                a, _ = ood_inst(d, 'SLAB')
+                b, _ = ood_inst(d, 'SPT')
+                _m, (lo, hi) = paired_mean_diff_ci(list(a), list(b), n_boot=2000, seed=0)
+                return 1 if (lo > 0 or hi < 0) else 0
+            define(f'OodSig{C}{S}', ex, 'OodSig', f'{C}{S}', 'int', flag, srcs,
+                   '1 if the 95% paired bootstrap interval (2000 resamples, default_rng(0)) of '
+                   'the mean per-order difference SLAB - SPT excludes zero')
+            for mk, meth in (('Spt', 'SPT'), ('Slab', 'SLAB')):
+                def over(d=ds, m=meth):
+                    a, ids = ood_inst(d, m)
+                    check(ids == [f'instance_{i:03d}' for i in range(len(ids))], f'{d}: ids')
+                    return 100 * float(np.mean(a / ood_chain_lb(d, len(a)) - 1))
+                define(f'Ood{mk}OverLb{C}{S}', ex, f'Ood{mk}OverLb', f'{C}{S}', 'pct', over,
+                       f'{srcs}, data/PPVC/{ds}',
+                       f'100*(mean over orders of makespan / chain bound at s_0 - 1); {note}')
+            define(f'OodSigma{C}{S}', ex, 'OodSigma', f'{C}{S}', 'share',
+                   lambda d=ds: float(np.mean([float(q['sigma'])
+                                               for q in ood_rec(d, 'SPT')['per_instance'][:20]])),
+                   srcs, 'share of module idle time spent queuing in the SPT schedules, mean '
+                   f'over the first 20 orders as for Cont* (analyze_training_load.py); {note}')
+
+
+    # range over the shifted sets (nominal excluded) at each size
+    for S, n in OOD_SIZES:
+        sets = [tpl.format(n=n) for C, tpl, _ in OOD_CONDS if C != 'Nominal']
+
+        def gains(sets=sets):
+            out = []
+            for d in sets:
+                a, _ = ood_inst(d, 'SLAB')
+                b, _ = ood_inst(d, 'SPT')
+                out.append(100 * (1 - a.mean() / b.mean()))
+            return out
+
+        def sigmas(sets=sets):
+            return [float(np.mean([float(q['sigma'])
+                                   for q in ood_rec(d, 'SPT')['per_instance'][:20]])) for d in sets]
+        srcs = f'test_results/PPVC/ood/{n}x*/ood_*.json'
+        define(f'OodGainMin{S}', ex, 'OodGainMin', S, 'pct', lambda g=gains: min(g()), srcs,
+               'smallest gain over SPT over the eight shifted sets')
+        define(f'OodGainMax{S}', ex, 'OodGainMax', S, 'pct', lambda g=gains: max(g()), srcs,
+               'largest gain over SPT over the eight shifted sets')
+        define(f'OodSigmaMin{S}', ex, 'OodSigmaMin', S, 'share', lambda g=sigmas: min(g()), srcs,
+               'smallest sigma of the SPT schedules over the eight shifted sets')
+
+        def worst_all(sets=sets):
+            out = []
+            for d in sets:
+                b = ood_inst(d, 'SPT')[0].mean()
+                out += [100 * (1 - ood_inst_seed(d, x) / b) for x in OOD_SEEDS]
+            return min(out)
+        define(f'OodGainWorstMin{S}', ex, 'OodGainWorstMin', S, 'pct', worst_all, srcs,
+               'smallest single-seed gain over SPT over the eight shifted sets and three seeds')
+
+    # gains over SPT of the earlier transfer studies, for the transfer table
+    ext = 'Transfer table (Section VI-E)'
+    define('TrTightSpt', ext, 'scalars', 'TrTightSpt', 'h',
+           lambda: result('SPT+10x15+ppvc-mixed+full', TIGHT[1]).mean(),
+           res_rel('SPT+10x15+ppvc-mixed+full', TIGHT[1]),
+           ONE_MEAN + ' of SPT on the 15-station factory (= MtightSptMean of macros.tex)')
+    for name, a, b, note in (
+            ('TrVarGainTen', 'VarHstarZsTen', 'VarSptTen', 'variable routes, seed 301'),
+            ('TrVarGainFifty', 'VarHstarZsFifty', 'VarSptFifty', 'variable routes, seed 301'),
+            ('TrUncGainTen', 'StochReactTenCvThree', 'StochSptTenCvThree',
+             'waits with cv 0.3, both re-planned in the same closed loop'),
+            ('TrUncGainFifty', 'StochReactFiftyCvThree', 'StochSptFiftyCvThree',
+             'waits with cv 0.3, both re-planned in the same closed loop'),
+            ('TrBufGainTen', 'BufHstarTenSix', 'BufSptTenSix', 'buffer of 6 modules, masked'),
+            ('TrBufGainFifty', 'BufHstarFiftySixteen', 'BufSptFiftySixteen',
+             'buffer of 16 modules, masked'),
+            ('TrTightZsGain', 'FtTightZs', 'TrTightSpt', '15 stations, no retraining'),
+            ('TrTightFtGain', 'FtTightAfter', 'TrTightSpt', '15 stations, fine-tuned')):
+        define(name, ext, 'scalars', name, 'pct',
+               lambda a=a, b=b: 100 * (1 - shown(a) / shown(b)), f'{a}, {b}',
+               f'100*(1 - SLAB/SPT) from the printed means: {note}')
+
+
+def wip_rec(ds, method):
+    rel_p = f'test_results/PPVC/wip_peaks/{ds}/wip_{method}.json'
+    path = os.path.join(REPO, rel_p)
+    if not os.path.exists(path):
+        raise Missing(rel_p, 'file absent')
+    d = read_json(path)
+    check(d['dataset'] == ds and d['method'] == method and d['validated'] is True
+          and len(d['per_instance']) == N_INST[ds], f'{rel_p}: header')
+    return d
+
+
+def wip_batch():
+    """Peaks of work in progress and of lag-buffer occupancy (Section VI-B, S5)."""
+    ex = 'Peaks of work in progress (Section VI-B)'
+    for S, ds in SIZES:
+        for mk, meth in (('Slab', 'SLAB-s301'), ('Spt', 'SPT')):
+            for nm, key in (('WipPeak', 'wip_peak'), ('WipPNinetyFive', 'wip_p95'),
+                            ('BufOccPeak', 'buffer_peak'), ('BufOccMean', 'buffer_mean')):
+                define(f'{nm}{mk}{S}', ex, f'{nm}{mk}', S, 'h',
+                       lambda d=ds, m=meth, k=key: float(np.mean(
+                           [float(q[k]) for q in wip_rec(d, m)['per_instance']])),
+                       f'test_results/PPVC/wip_peaks/{ds}/wip_{meth}.json',
+                       f'mean over orders of {key}; SLAB = seed 301 on the CPU')
+            def mk_check(d=ds, m=meth, mk=mk):
+                # makespans equal the by-product schedules of the main text
+                bp = 'greedy' if mk == 'Slab' else 'SPT'
+                b = read_json(os.path.join(REPO, f'test_results/PPVC/{d}/byproducts_hstar/byproducts_{bp}.json'))
+                a = [float(q['makespan']) for q in wip_rec(d, m)['per_instance']]
+                c = [float(q['makespan']) for q in b['per_instance']]
+                check(np.allclose(a, c), f'{d} {m}: WIP schedules differ from the by-product schedules')
+                return 1
+            define(f'WipSameSched{mk}{S}', ex, 'WipSameSched', f'{mk}{S}', 'int', mk_check,
+                   f'test_results/PPVC/wip_peaks/{ds}/wip_{meth}.json',
+                   '1 if every makespan equals the by-product schedule of the same method')
+        define(f'BufOccSeedsAbove{S}', ex, 'BufOccSeedsAbove', S, 'int',
+               lambda d=ds: sum(1 for x in OOD_SEEDS if np.mean(
+                   [float(q['buffer_peak']) for q in wip_rec(d, f'SLAB-s{x}')['per_instance']])
+                   > np.mean([float(q['buffer_peak']) for q in wip_rec(d, 'SPT')['per_instance']])),
+               f'test_results/PPVC/wip_peaks/{ds}/wip_*.json',
+               'number of SLAB seeds whose mean peak buffer occupancy exceeds that of SPT')
+        define(f'WipPeakSeedsBelow{S}', ex, 'WipPeakSeedsBelow', S, 'int',
+               lambda d=ds: sum(1 for x in OOD_SEEDS if np.mean(
+                   [float(q['wip_peak']) for q in wip_rec(d, f'SLAB-s{x}')['per_instance']])
+                   < np.mean([float(q['wip_peak']) for q in wip_rec(d, 'SPT')['per_instance']])),
+               f'test_results/PPVC/wip_peaks/{ds}/wip_*.json',
+               'number of SLAB seeds whose mean WIP peak is below that of SPT')
+
+
+@functools.lru_cache(maxsize=None)
+def ood_holm():
+    """Two-sided Wilcoxon signed-rank p of SLAB (seed mean per order) against
+    SPT on each of the 16 shifted sets, Holm-adjusted within that family (the
+    nominal sets are not part of it). Returns {(C, S): (raw p, adjusted p)}."""
+    keys, raw = [], []
+    for C, tpl, _ in OOD_CONDS:
+        if C == 'Nominal':
+            continue
+        for S, n in OOD_SIZES:
+            d = tpl.format(n=n)
+            a, _ = ood_inst(d, 'SLAB')
+            b, _ = ood_inst(d, 'SPT')
+            keys.append((C, S))
+            raw.append(wilcoxon_paired(list(a), list(b)))
+    adj, _rej = holm(raw)
+    return {k: (r, float(x)) for k, r, x in zip(keys, raw, adj)}
+
+
+def ood_tests():
+    ex = 'Out-of-distribution transfer'
+    for C, tpl, note in OOD_CONDS:
+        if C == 'Nominal':
+            continue
+        for S, n in OOD_SIZES:
+            srcs = f'test_results/PPVC/ood/{tpl.format(n=n)}/ood_*.json'
+            define(f'OodHolmP{C}{S}', ex, 'OodHolmP', f'{C}{S}', 'p',
+                   lambda C=C, S=S: ood_holm()[(C, S)][1], srcs,
+                   'Holm-adjusted two-sided Wilcoxon p, SLAB seed mean vs SPT, family = 16 shifted sets')
+            define(f'OodWilcoxP{C}{S}', ex, 'OodWilcoxP', f'{C}{S}', 'p',
+                   lambda C=C, S=S: ood_holm()[(C, S)][0], srcs,
+                   'unadjusted two-sided Wilcoxon p, SLAB seed mean vs SPT')
+    define('OodHolmSigCount', ex, 'scalars', 'OodHolmSigCount', 'int',
+           lambda: sum(1 for r, x in ood_holm().values() if x <= 0.05),
+           'test_results/PPVC/ood', 'number of the 16 shifted sets with Holm-adjusted p <= 0.05')
+
+
+def ood_inst_seed(ds, seed):
+    d = ood_rec(ds, f'SLAB-s{seed}')
+    return float(np.mean([float(q['makespan']) for q in d['per_instance']]))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--strict', action='store_true',
@@ -2974,7 +3501,7 @@ def main(argv=None):
     except AssertionError as err:
         FAILS.append(('data', str(err)))
     for build in (table2, table3, table4, table5, table6, table7, stats, extras,
-                  revision_batch):
+                  revision_batch, regimes_batch, ood_batch, ood_tests, wip_batch):
         build()
     checks = self_checks()
     coll = collisions(args.out_dir)

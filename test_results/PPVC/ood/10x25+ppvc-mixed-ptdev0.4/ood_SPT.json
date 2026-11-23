@@ -1,0 +1,824 @@
+{
+ "dataset": "10x25+ppvc-mixed-ptdev0.4",
+ "method": "SPT",
+ "n_instances": 100,
+ "model": null,
+ "checkpoint": null,
+ "checkpoint_sha256": null,
+ "decoding": null,
+ "seed_test": 50,
+ "tie_seed": "seed_test + order index (eval_ppvc rules)",
+ "validated": true,
+ "validation": "schedule_validator.validate_schedule against the time_lag of this set; validator makespan equals the environment makespan",
+ "dataset_meta": {
+  "seed0": 50000,
+  "n_instances": 100,
+  "n_modules": 10,
+  "ppvc_mix": "mixed",
+  "source_set": "10x25+ppvc-mixed",
+  "source_orders": "instance_000 to instance_099",
+  "paired_with_source": true,
+  "route_variant_note": "fixed routes",
+  "generator": "ppvc_instance_generator.py",
+  "generator_sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633",
+  "written_by": "make_ood_testsets.py",
+  "condition": "duration spread",
+  "pt_deviation": 0.4,
+  "ppvc_factory": "default",
+  "station_counts": {
+   "A": 3,
+   "B": 2,
+   "C": 4,
+   "D": 4,
+   "E": 3,
+   "F": 3,
+   "G": 1,
+   "H": 2,
+   "Q": 3
+  },
+  "pairing": "same seed: classes, module weights, routes, nominal durations, waits and the standard uniform draw of every (operation, station) equal the source order; processing time = max(1, round(nominal x (1 - 0.4 + 0.8 v)))",
+  "purpose": "out-of-distribution test set: 10x25+ppvc-mixed with processing-time spread +-0.4"
+ },
+ "definitions": {
+  "queue_h": "sum over consecutive operations of successor start - predecessor completion - wait (h)",
+  "wait_h": "sum of the waits between consecutive operations (h)",
+  "sigma": "queue_h / (queue_h + wait_h)"
+ },
+ "provenance": {
+  "modules": {
+   "eval_ppvc": {
+    "path": "eval_ppvc.py",
+    "sha256": "83e6639ec38f67ea617834b792addb5b1f3ae64a21f3b70c581a12770b584a5f"
+   },
+   "params": {
+    "path": "params.py",
+    "sha256": "dc215215ccd08add8808a13082111163693abb4f24eed1bfb41e8c2a387d9a2f"
+   },
+   "fjsp_env_same_op_nums": {
+    "path": "fjsp_env_same_op_nums.py",
+    "sha256": "d8381b67787e5b9b5accc977552ac944e7f8858fc1822368646981318d236e1a"
+   },
+   "common_utils": {
+    "path": "common_utils.py",
+    "sha256": "708df92289d91a780c4174a9e69609c4d6823c93a558c82e79f2d9f3d9e4386d"
+   },
+   "model.main_model": {
+    "path": "model/main_model.py",
+    "sha256": "0b825dbb49686919b8e737a4cfb02f4879e442f97fc4dc5310c98523283cda64"
+   },
+   "model.PPO": {
+    "path": "model/PPO.py",
+    "sha256": "07581f0401b787174f825f9048615d2d4f547f013e6af32ce1a90abad392e9b1"
+   },
+   "model.sub_layers": {
+    "path": "model/sub_layers.py",
+    "sha256": "da05748f0054a9c5657ac16fe5d114956bcbef3e151f2f48812586db5e7051f3"
+   },
+   "model.attention_layer": {
+    "path": "model/attention_layer.py",
+    "sha256": "a6fec1a17592dcb064ca9d60cfe2e90a5da7b0d4891a8fd5cd37d341b6ce98c7"
+   },
+   "schedule_validator": {
+    "path": "schedule_validator.py",
+    "sha256": "3c6f41b00f6a70220533c9c75b97eb71107fd75b1a972d355d57951ec57831d3"
+   },
+   "eval_byproducts": {
+    "path": "eval_byproducts.py",
+    "sha256": "3022b2c9f33239257583cdf843b5495b8fa39ccba8fa37f1c6de7bde4c0e8e82"
+   },
+   "ppvc_instance_generator": {
+    "path": "ppvc_instance_generator.py",
+    "sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633"
+   },
+   "data_utils": {
+    "path": "data_utils.py",
+    "sha256": "b4424b851c625f3848a6c06e37a4c04d740e35040bad0a9bd53da62f46769c19"
+   }
+  },
+  "source": "frozen copy of a repository commit",
+  "source_commit": "07923569f32a094c36951503b521fd726d43a00e",
+  "affinity": [
+   9
+  ],
+  "torch_threads": 1,
+  "torch_interop_threads": 1,
+  "env_threads": {
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "OPENBLAS_NUM_THREADS": "1",
+   "CUDA_VISIBLE_DEVICES": ""
+  },
+  "device": "cpu",
+  "python_executable": "~/miniconda3/envs/fjsp/bin/python",
+  "python": "3.11.15",
+  "torch": "2.11.0+cu128",
+  "numpy": "1.26.4"
+ },
+ "started": "2026-11-23T03:02:02",
+ "elapsed_s": 14.236416578292847,
+ "elapsed_note": "bookkeeping only, not a timing measurement",
+ "mean_makespan": 207.1,
+ "mean_sigma": 0.12126276411194326,
+ "per_instance": [
+  {
+   "instance": "instance_000",
+   "makespan": 192.0,
+   "queue_h": 169.0,
+   "wait_h": 685.0,
+   "sigma": 0.19789227166276346
+  },
+  {
+   "instance": "instance_001",
+   "makespan": 206.0,
+   "queue_h": 163.0,
+   "wait_h": 663.0,
+   "sigma": 0.1973365617433414
+  },
+  {
+   "instance": "instance_002",
+   "makespan": 206.0,
+   "queue_h": 179.0,
+   "wait_h": 760.0,
+   "sigma": 0.1906283280085197
+  },
+  {
+   "instance": "instance_003",
+   "makespan": 212.0,
+   "queue_h": 97.0,
+   "wait_h": 763.0,
+   "sigma": 0.1127906976744186
+  },
+  {
+   "instance": "instance_004",
+   "makespan": 219.0,
+   "queue_h": 62.0,
+   "wait_h": 740.0,
+   "sigma": 0.0773067331670823
+  },
+  {
+   "instance": "instance_005",
+   "makespan": 207.0,
+   "queue_h": 115.0,
+   "wait_h": 800.0,
+   "sigma": 0.12568306010928962
+  },
+  {
+   "instance": "instance_006",
+   "makespan": 212.0,
+   "queue_h": 280.0,
+   "wait_h": 630.0,
+   "sigma": 0.3076923076923077
+  },
+  {
+   "instance": "instance_007",
+   "makespan": 204.0,
+   "queue_h": 177.0,
+   "wait_h": 723.0,
+   "sigma": 0.19666666666666666
+  },
+  {
+   "instance": "instance_008",
+   "makespan": 223.0,
+   "queue_h": 49.0,
+   "wait_h": 822.0,
+   "sigma": 0.05625717566016074
+  },
+  {
+   "instance": "instance_009",
+   "makespan": 190.0,
+   "queue_h": 136.0,
+   "wait_h": 642.0,
+   "sigma": 0.17480719794344474
+  },
+  {
+   "instance": "instance_010",
+   "makespan": 204.0,
+   "queue_h": 122.0,
+   "wait_h": 740.0,
+   "sigma": 0.14153132250580047
+  },
+  {
+   "instance": "instance_011",
+   "makespan": 200.0,
+   "queue_h": 91.0,
+   "wait_h": 741.0,
+   "sigma": 0.109375
+  },
+  {
+   "instance": "instance_012",
+   "makespan": 194.0,
+   "queue_h": 48.0,
+   "wait_h": 796.0,
+   "sigma": 0.05687203791469194
+  },
+  {
+   "instance": "instance_013",
+   "makespan": 215.0,
+   "queue_h": 87.0,
+   "wait_h": 799.0,
+   "sigma": 0.0981941309255079
+  },
+  {
+   "instance": "instance_014",
+   "makespan": 200.0,
+   "queue_h": 81.0,
+   "wait_h": 759.0,
+   "sigma": 0.09642857142857143
+  },
+  {
+   "instance": "instance_015",
+   "makespan": 203.0,
+   "queue_h": 86.0,
+   "wait_h": 767.0,
+   "sigma": 0.10082063305978899
+  },
+  {
+   "instance": "instance_016",
+   "makespan": 197.0,
+   "queue_h": 243.0,
+   "wait_h": 689.0,
+   "sigma": 0.2607296137339056
+  },
+  {
+   "instance": "instance_017",
+   "makespan": 195.0,
+   "queue_h": 128.0,
+   "wait_h": 730.0,
+   "sigma": 0.14918414918414918
+  },
+  {
+   "instance": "instance_018",
+   "makespan": 215.0,
+   "queue_h": 58.0,
+   "wait_h": 974.0,
+   "sigma": 0.0562015503875969
+  },
+  {
+   "instance": "instance_019",
+   "makespan": 206.0,
+   "queue_h": 57.0,
+   "wait_h": 790.0,
+   "sigma": 0.06729634002361275
+  },
+  {
+   "instance": "instance_020",
+   "makespan": 217.0,
+   "queue_h": 72.0,
+   "wait_h": 916.0,
+   "sigma": 0.0728744939271255
+  },
+  {
+   "instance": "instance_021",
+   "makespan": 205.0,
+   "queue_h": 83.0,
+   "wait_h": 817.0,
+   "sigma": 0.09222222222222222
+  },
+  {
+   "instance": "instance_022",
+   "makespan": 195.0,
+   "queue_h": 91.0,
+   "wait_h": 795.0,
+   "sigma": 0.10270880361173815
+  },
+  {
+   "instance": "instance_023",
+   "makespan": 196.0,
+   "queue_h": 113.0,
+   "wait_h": 741.0,
+   "sigma": 0.1323185011709602
+  },
+  {
+   "instance": "instance_024",
+   "makespan": 223.0,
+   "queue_h": 29.0,
+   "wait_h": 870.0,
+   "sigma": 0.03225806451612903
+  },
+  {
+   "instance": "instance_025",
+   "makespan": 205.0,
+   "queue_h": 107.0,
+   "wait_h": 818.0,
+   "sigma": 0.11567567567567567
+  },
+  {
+   "instance": "instance_026",
+   "makespan": 230.0,
+   "queue_h": 66.0,
+   "wait_h": 862.0,
+   "sigma": 0.07112068965517242
+  },
+  {
+   "instance": "instance_027",
+   "makespan": 194.0,
+   "queue_h": 70.0,
+   "wait_h": 704.0,
+   "sigma": 0.09043927648578812
+  },
+  {
+   "instance": "instance_028",
+   "makespan": 216.0,
+   "queue_h": 87.0,
+   "wait_h": 845.0,
+   "sigma": 0.09334763948497854
+  },
+  {
+   "instance": "instance_029",
+   "makespan": 212.0,
+   "queue_h": 31.0,
+   "wait_h": 892.0,
+   "sigma": 0.03358613217768147
+  },
+  {
+   "instance": "instance_030",
+   "makespan": 214.0,
+   "queue_h": 185.0,
+   "wait_h": 780.0,
+   "sigma": 0.19170984455958548
+  },
+  {
+   "instance": "instance_031",
+   "makespan": 205.0,
+   "queue_h": 121.0,
+   "wait_h": 820.0,
+   "sigma": 0.12858660998937302
+  },
+  {
+   "instance": "instance_032",
+   "makespan": 205.0,
+   "queue_h": 142.0,
+   "wait_h": 659.0,
+   "sigma": 0.1772784019975031
+  },
+  {
+   "instance": "instance_033",
+   "makespan": 205.0,
+   "queue_h": 72.0,
+   "wait_h": 824.0,
+   "sigma": 0.08035714285714286
+  },
+  {
+   "instance": "instance_034",
+   "makespan": 204.0,
+   "queue_h": 182.0,
+   "wait_h": 709.0,
+   "sigma": 0.20426487093153758
+  },
+  {
+   "instance": "instance_035",
+   "makespan": 209.0,
+   "queue_h": 71.0,
+   "wait_h": 953.0,
+   "sigma": 0.0693359375
+  },
+  {
+   "instance": "instance_036",
+   "makespan": 210.0,
+   "queue_h": 94.0,
+   "wait_h": 892.0,
+   "sigma": 0.09533468559837728
+  },
+  {
+   "instance": "instance_037",
+   "makespan": 211.0,
+   "queue_h": 107.0,
+   "wait_h": 852.0,
+   "sigma": 0.11157455683003129
+  },
+  {
+   "instance": "instance_038",
+   "makespan": 216.0,
+   "queue_h": 92.0,
+   "wait_h": 791.0,
+   "sigma": 0.10419026047565119
+  },
+  {
+   "instance": "instance_039",
+   "makespan": 212.0,
+   "queue_h": 61.0,
+   "wait_h": 878.0,
+   "sigma": 0.06496272630457935
+  },
+  {
+   "instance": "instance_040",
+   "makespan": 196.0,
+   "queue_h": 86.0,
+   "wait_h": 806.0,
+   "sigma": 0.09641255605381166
+  },
+  {
+   "instance": "instance_041",
+   "makespan": 206.0,
+   "queue_h": 140.0,
+   "wait_h": 768.0,
+   "sigma": 0.15418502202643172
+  },
+  {
+   "instance": "instance_042",
+   "makespan": 212.0,
+   "queue_h": 178.0,
+   "wait_h": 840.0,
+   "sigma": 0.17485265225933203
+  },
+  {
+   "instance": "instance_043",
+   "makespan": 201.0,
+   "queue_h": 95.0,
+   "wait_h": 836.0,
+   "sigma": 0.10204081632653061
+  },
+  {
+   "instance": "instance_044",
+   "makespan": 222.0,
+   "queue_h": 202.0,
+   "wait_h": 896.0,
+   "sigma": 0.18397085610200364
+  },
+  {
+   "instance": "instance_045",
+   "makespan": 217.0,
+   "queue_h": 61.0,
+   "wait_h": 878.0,
+   "sigma": 0.06496272630457935
+  },
+  {
+   "instance": "instance_046",
+   "makespan": 192.0,
+   "queue_h": 89.0,
+   "wait_h": 737.0,
+   "sigma": 0.10774818401937046
+  },
+  {
+   "instance": "instance_047",
+   "makespan": 204.0,
+   "queue_h": 113.0,
+   "wait_h": 833.0,
+   "sigma": 0.11945031712473574
+  },
+  {
+   "instance": "instance_048",
+   "makespan": 208.0,
+   "queue_h": 41.0,
+   "wait_h": 766.0,
+   "sigma": 0.05080545229244114
+  },
+  {
+   "instance": "instance_049",
+   "makespan": 210.0,
+   "queue_h": 96.0,
+   "wait_h": 785.0,
+   "sigma": 0.10896708286038592
+  },
+  {
+   "instance": "instance_050",
+   "makespan": 221.0,
+   "queue_h": 91.0,
+   "wait_h": 870.0,
+   "sigma": 0.09469302809573361
+  },
+  {
+   "instance": "instance_051",
+   "makespan": 204.0,
+   "queue_h": 76.0,
+   "wait_h": 871.0,
+   "sigma": 0.08025343189017951
+  },
+  {
+   "instance": "instance_052",
+   "makespan": 217.0,
+   "queue_h": 37.0,
+   "wait_h": 856.0,
+   "sigma": 0.04143337066069429
+  },
+  {
+   "instance": "instance_053",
+   "makespan": 207.0,
+   "queue_h": 101.0,
+   "wait_h": 833.0,
+   "sigma": 0.10813704496788008
+  },
+  {
+   "instance": "instance_054",
+   "makespan": 202.0,
+   "queue_h": 206.0,
+   "wait_h": 733.0,
+   "sigma": 0.21938232161874335
+  },
+  {
+   "instance": "instance_055",
+   "makespan": 199.0,
+   "queue_h": 143.0,
+   "wait_h": 705.0,
+   "sigma": 0.16863207547169812
+  },
+  {
+   "instance": "instance_056",
+   "makespan": 199.0,
+   "queue_h": 142.0,
+   "wait_h": 727.0,
+   "sigma": 0.16340621403912542
+  },
+  {
+   "instance": "instance_057",
+   "makespan": 208.0,
+   "queue_h": 207.0,
+   "wait_h": 760.0,
+   "sigma": 0.2140641158221303
+  },
+  {
+   "instance": "instance_058",
+   "makespan": 199.0,
+   "queue_h": 132.0,
+   "wait_h": 692.0,
+   "sigma": 0.16019417475728157
+  },
+  {
+   "instance": "instance_059",
+   "makespan": 230.0,
+   "queue_h": 141.0,
+   "wait_h": 826.0,
+   "sigma": 0.14581178903826267
+  },
+  {
+   "instance": "instance_060",
+   "makespan": 214.0,
+   "queue_h": 62.0,
+   "wait_h": 904.0,
+   "sigma": 0.06418219461697723
+  },
+  {
+   "instance": "instance_061",
+   "makespan": 221.0,
+   "queue_h": 51.0,
+   "wait_h": 924.0,
+   "sigma": 0.052307692307692305
+  },
+  {
+   "instance": "instance_062",
+   "makespan": 205.0,
+   "queue_h": 235.0,
+   "wait_h": 688.0,
+   "sigma": 0.25460455037919827
+  },
+  {
+   "instance": "instance_063",
+   "makespan": 207.0,
+   "queue_h": 60.0,
+   "wait_h": 843.0,
+   "sigma": 0.0664451827242525
+  },
+  {
+   "instance": "instance_064",
+   "makespan": 196.0,
+   "queue_h": 104.0,
+   "wait_h": 710.0,
+   "sigma": 0.12776412776412777
+  },
+  {
+   "instance": "instance_065",
+   "makespan": 211.0,
+   "queue_h": 89.0,
+   "wait_h": 843.0,
+   "sigma": 0.09549356223175966
+  },
+  {
+   "instance": "instance_066",
+   "makespan": 209.0,
+   "queue_h": 117.0,
+   "wait_h": 763.0,
+   "sigma": 0.13295454545454546
+  },
+  {
+   "instance": "instance_067",
+   "makespan": 198.0,
+   "queue_h": 60.0,
+   "wait_h": 803.0,
+   "sigma": 0.06952491309385864
+  },
+  {
+   "instance": "instance_068",
+   "makespan": 207.0,
+   "queue_h": 77.0,
+   "wait_h": 867.0,
+   "sigma": 0.0815677966101695
+  },
+  {
+   "instance": "instance_069",
+   "makespan": 228.0,
+   "queue_h": 35.0,
+   "wait_h": 913.0,
+   "sigma": 0.03691983122362869
+  },
+  {
+   "instance": "instance_070",
+   "makespan": 203.0,
+   "queue_h": 250.0,
+   "wait_h": 696.0,
+   "sigma": 0.2642706131078224
+  },
+  {
+   "instance": "instance_071",
+   "makespan": 207.0,
+   "queue_h": 59.0,
+   "wait_h": 834.0,
+   "sigma": 0.06606942889137737
+  },
+  {
+   "instance": "instance_072",
+   "makespan": 193.0,
+   "queue_h": 75.0,
+   "wait_h": 707.0,
+   "sigma": 0.0959079283887468
+  },
+  {
+   "instance": "instance_073",
+   "makespan": 199.0,
+   "queue_h": 67.0,
+   "wait_h": 737.0,
+   "sigma": 0.08333333333333333
+  },
+  {
+   "instance": "instance_074",
+   "makespan": 213.0,
+   "queue_h": 82.0,
+   "wait_h": 820.0,
+   "sigma": 0.09090909090909091
+  },
+  {
+   "instance": "instance_075",
+   "makespan": 200.0,
+   "queue_h": 119.0,
+   "wait_h": 770.0,
+   "sigma": 0.13385826771653545
+  },
+  {
+   "instance": "instance_076",
+   "makespan": 213.0,
+   "queue_h": 109.0,
+   "wait_h": 778.0,
+   "sigma": 0.12288613303269448
+  },
+  {
+   "instance": "instance_077",
+   "makespan": 231.0,
+   "queue_h": 49.0,
+   "wait_h": 1008.0,
+   "sigma": 0.046357615894039736
+  },
+  {
+   "instance": "instance_078",
+   "makespan": 200.0,
+   "queue_h": 196.0,
+   "wait_h": 663.0,
+   "sigma": 0.2281722933643772
+  },
+  {
+   "instance": "instance_079",
+   "makespan": 210.0,
+   "queue_h": 72.0,
+   "wait_h": 851.0,
+   "sigma": 0.0780065005417118
+  },
+  {
+   "instance": "instance_080",
+   "makespan": 197.0,
+   "queue_h": 121.0,
+   "wait_h": 663.0,
+   "sigma": 0.15433673469387754
+  },
+  {
+   "instance": "instance_081",
+   "makespan": 210.0,
+   "queue_h": 153.0,
+   "wait_h": 792.0,
+   "sigma": 0.1619047619047619
+  },
+  {
+   "instance": "instance_082",
+   "makespan": 209.0,
+   "queue_h": 86.0,
+   "wait_h": 857.0,
+   "sigma": 0.0911983032873807
+  },
+  {
+   "instance": "instance_083",
+   "makespan": 210.0,
+   "queue_h": 75.0,
+   "wait_h": 776.0,
+   "sigma": 0.0881316098707403
+  },
+  {
+   "instance": "instance_084",
+   "makespan": 207.0,
+   "queue_h": 62.0,
+   "wait_h": 824.0,
+   "sigma": 0.06997742663656885
+  },
+  {
+   "instance": "instance_085",
+   "makespan": 210.0,
+   "queue_h": 77.0,
+   "wait_h": 744.0,
+   "sigma": 0.09378806333739342
+  },
+  {
+   "instance": "instance_086",
+   "makespan": 216.0,
+   "queue_h": 64.0,
+   "wait_h": 869.0,
+   "sigma": 0.06859592711682744
+  },
+  {
+   "instance": "instance_087",
+   "makespan": 201.0,
+   "queue_h": 67.0,
+   "wait_h": 876.0,
+   "sigma": 0.07104984093319194
+  },
+  {
+   "instance": "instance_088",
+   "makespan": 209.0,
+   "queue_h": 60.0,
+   "wait_h": 903.0,
+   "sigma": 0.06230529595015576
+  },
+  {
+   "instance": "instance_089",
+   "makespan": 213.0,
+   "queue_h": 47.0,
+   "wait_h": 890.0,
+   "sigma": 0.05016008537886873
+  },
+  {
+   "instance": "instance_090",
+   "makespan": 204.0,
+   "queue_h": 120.0,
+   "wait_h": 721.0,
+   "sigma": 0.1426872770511296
+  },
+  {
+   "instance": "instance_091",
+   "makespan": 206.0,
+   "queue_h": 77.0,
+   "wait_h": 838.0,
+   "sigma": 0.08415300546448087
+  },
+  {
+   "instance": "instance_092",
+   "makespan": 193.0,
+   "queue_h": 235.0,
+   "wait_h": 520.0,
+   "sigma": 0.31125827814569534
+  },
+  {
+   "instance": "instance_093",
+   "makespan": 204.0,
+   "queue_h": 156.0,
+   "wait_h": 803.0,
+   "sigma": 0.16266944734098018
+  },
+  {
+   "instance": "instance_094",
+   "makespan": 209.0,
+   "queue_h": 68.0,
+   "wait_h": 864.0,
+   "sigma": 0.07296137339055794
+  },
+  {
+   "instance": "instance_095",
+   "makespan": 213.0,
+   "queue_h": 280.0,
+   "wait_h": 643.0,
+   "sigma": 0.30335861321776814
+  },
+  {
+   "instance": "instance_096",
+   "makespan": 199.0,
+   "queue_h": 92.0,
+   "wait_h": 710.0,
+   "sigma": 0.11471321695760599
+  },
+  {
+   "instance": "instance_097",
+   "makespan": 192.0,
+   "queue_h": 137.0,
+   "wait_h": 662.0,
+   "sigma": 0.17146433041301626
+  },
+  {
+   "instance": "instance_098",
+   "makespan": 208.0,
+   "queue_h": 107.0,
+   "wait_h": 759.0,
+   "sigma": 0.1235565819861432
+  },
+  {
+   "instance": "instance_099",
+   "makespan": 197.0,
+   "queue_h": 126.0,
+   "wait_h": 779.0,
+   "sigma": 0.13922651933701657
+  }
+ ]
+}

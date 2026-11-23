@@ -1,0 +1,1330 @@
+{
+ "script": "analysis_cpsat_regimes.py",
+ "checkpoints_s": [
+  1,
+  5,
+  10,
+  30,
+  60,
+  300,
+  600,
+  1800
+ ],
+ "matched_source": "paper_inputs/cost_table_v3.json",
+ "slab_sources": {
+  "10x25+ppvc-mixed": "test_results/PPVC/10x25+ppvc-mixed/Result_greedy+10x25+ppvc-mixed+a1lagx05-2k-s30{1,2,3}_10x25+ppvc-mixed.npy",
+  "20x25+ppvc-mixed": "test_results/PPVC/20x25+ppvc-mixed/Result_greedy+10x25+ppvc-mixed+a1lagx05-2k-s30{1,2,3}_20x25+ppvc-mixed.npy",
+  "30x25+ppvc-mixed": "test_results/PPVC/30x25+ppvc-mixed/Result_greedy+10x25+ppvc-mixed+a1lagx05-2k-s30{1,2,3}_30x25+ppvc-mixed.npy",
+  "50x25+ppvc-mixed": "test_results/PPVC/50x25+ppvc-mixed/Result_greedy+10x25+ppvc-mixed+a1lagx05-2k-s30{1,2,3}_50x25+ppvc-mixed.npy",
+  "80x25+ppvc-mixed": "test_results/PPVC/80x25+ppvc-mixed/Result_greedy+10x25+ppvc-mixed+a1lagx05-2k-s30{1,2,3}_80x25+ppvc-mixed.npy"
+ },
+ "sizes": {
+  "Ten": {
+   "dataset": "10x25+ppvc-mixed",
+   "n": 100,
+   "slab_latency_s": 0.7313924863934517,
+   "mean_slab": 211.3,
+   "mean_best_bound": 201.97,
+   "mean_best_known": 203.15,
+   "mean_slab_over_bound": 1.0471627976856257,
+   "mean_best_known_over_bound": 1.0065575116702619,
+   "mean_slab_over_best_known": 1.040261507136552,
+   "runs": [
+    {
+     "run": "cold",
+     "limit_s": 300,
+     "n": 100,
+     "source": "or_solution/PPVC/anytime/10x25+ppvc-mixed_cold_300s_w4.jsonl",
+     "mean_final": 203.2,
+     "n_optimal": 83,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 216.03,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 64,
+       "n_slab_longer": 35
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 204.41,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.78,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.47,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.37,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.2,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "matched": {
+       "time_s": 0.7313924863934517,
+       "n_with_solution": 100,
+       "mean_incumbent": 228.2,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 90,
+       "n_slab_longer": 10
+      }
+     }
+    },
+    {
+     "run": "warm-spt",
+     "limit_s": 300,
+     "n": 100,
+     "source": "or_solution/PPVC/anytime/10x25+ppvc-mixed_warm-spt_300s_w4.jsonl",
+     "mean_final": 203.23,
+     "n_optimal": 85,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 206.49,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 11,
+       "n_slab_longer": 88
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 204.01,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.64,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.37,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.32,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 100,
+       "mean_incumbent": 203.23,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 0,
+       "n_slab_longer": 100
+      },
+      "matched": {
+       "time_s": 0.7313924863934517,
+       "n_with_solution": 100,
+       "mean_incumbent": 207.47,
+       "mean_slab_same_orders": 211.3,
+       "n_slab_shorter": 17,
+       "n_slab_longer": 83
+      }
+     }
+    }
+   ]
+  },
+  "Twenty": {
+   "dataset": "20x25+ppvc-mixed",
+   "n": 50,
+   "slab_latency_s": 1.7240756300278008,
+   "mean_slab": 255.01333333333332,
+   "mean_best_bound": 210.72,
+   "mean_best_known": 250.7,
+   "mean_slab_over_bound": 1.2113876967550403,
+   "mean_best_known_over_bound": 1.1909065245275152,
+   "mean_slab_over_best_known": 1.0171786442114445,
+   "runs": [
+    {
+     "run": "cold",
+     "limit_s": 300,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/20x25+ppvc-mixed_cold_300s_w4.jsonl",
+     "mean_final": 253.74,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 371.56,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 300.06,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 278.72,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 265.64,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 48,
+       "n_slab_longer": 2
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 261.2,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 44,
+       "n_slab_longer": 5
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 253.74,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 18,
+       "n_slab_longer": 30
+      },
+      "matched": {
+       "time_s": 1.7240756300278008,
+       "n_with_solution": 50,
+       "mean_incumbent": 355.8,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-spt",
+     "limit_s": 300,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/20x25+ppvc-mixed_warm-spt_300s_w4.jsonl",
+     "mean_final": 253.36,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 263.14,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 44,
+       "n_slab_longer": 6
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 261.46,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 44,
+       "n_slab_longer": 6
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 260.74,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 43,
+       "n_slab_longer": 7
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 259.02,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 40,
+       "n_slab_longer": 8
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 257.52,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 36,
+       "n_slab_longer": 11
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 253.36,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 18,
+       "n_slab_longer": 31
+      },
+      "matched": {
+       "time_s": 1.7240756300278008,
+       "n_with_solution": 50,
+       "mean_incumbent": 263.0,
+       "mean_slab_same_orders": 255.01333333333332,
+       "n_slab_shorter": 44,
+       "n_slab_longer": 6
+      }
+     }
+    }
+   ]
+  },
+  "Thirty": {
+   "dataset": "30x25+ppvc-mixed",
+   "n": 20,
+   "slab_latency_s": 2.958184464648366,
+   "mean_slab": 308.6666666666667,
+   "mean_best_bound": 210.85,
+   "mean_best_known": 305.0,
+   "mean_slab_over_bound": 1.464536652440957,
+   "mean_best_known_over_bound": 1.4472350491563568,
+   "mean_slab_over_best_known": 1.012022618637006,
+   "runs": [
+    {
+     "run": "cold",
+     "limit_s": 300,
+     "n": 20,
+     "source": "or_solution/PPVC/anytime/30x25+ppvc-mixed_cold_300s_w4.jsonl",
+     "mean_final": 318.85,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 515.2,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 462.85,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 402.35,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 347.25,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 337.25,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 318.85,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 19,
+       "n_slab_longer": 1
+      },
+      "matched": {
+       "time_s": 2.958184464648366,
+       "n_with_solution": 20,
+       "mean_incumbent": 490.45,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-spt",
+     "limit_s": 300,
+     "n": 20,
+     "source": "or_solution/PPVC/anytime/30x25+ppvc-mixed_warm-spt_300s_w4.jsonl",
+     "mean_final": 318.5,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 322.75,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 19,
+       "n_slab_longer": 1
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 322.4,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 19,
+       "n_slab_longer": 1
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 322.1,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 19,
+       "n_slab_longer": 1
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 321.1,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 19,
+       "n_slab_longer": 1
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 320.5,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 19,
+       "n_slab_longer": 1
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 318.5,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 18,
+       "n_slab_longer": 2
+      },
+      "matched": {
+       "time_s": 2.958184464648366,
+       "n_with_solution": 20,
+       "mean_incumbent": 322.4,
+       "mean_slab_same_orders": 308.6666666666667,
+       "n_slab_shorter": 19,
+       "n_slab_longer": 1
+      }
+     }
+    }
+   ]
+  },
+  "Fifty": {
+   "dataset": "50x25+ppvc-mixed",
+   "n": 50,
+   "slab_latency_s": 6.219429888390005,
+   "mean_slab": 414.85333333333335,
+   "mean_best_bound": 247.44,
+   "mean_best_known": 408.6,
+   "mean_slab_over_bound": 1.6775173793778573,
+   "mean_best_known_over_bound": 1.652122233463667,
+   "mean_slab_over_best_known": 1.0153456753411823,
+   "runs": [
+    {
+     "run": "cold",
+     "limit_s": 600,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/50x25+ppvc-mixed_cold_600s_w4.jsonl",
+     "mean_final": 464.24,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 792.72,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 753.52,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 717.38,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 555.6,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 524.78,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 480.0,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 464.24,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 6.219429888390005,
+       "n_with_solution": 50,
+       "mean_incumbent": 747.4,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-spt",
+     "limit_s": 600,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/50x25+ppvc-mixed_warm-spt_600s_w4.jsonl",
+     "mean_final": 444.08,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 448.86,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 447.48,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 447.44,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 446.84,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 446.14,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 444.74,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 444.08,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 6.219429888390005,
+       "n_with_solution": 50,
+       "mean_incumbent": 447.48,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-policy",
+     "limit_s": 600,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/50x25+ppvc-mixed_warm-policy-halflag-s301_600s_w4.jsonl",
+     "mean_final": 409.42,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 412.36,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 11,
+       "n_slab_longer": 38
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 411.36,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 8,
+       "n_slab_longer": 41
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 411.36,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 8,
+       "n_slab_longer": 41
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 410.74,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 7,
+       "n_slab_longer": 42
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 410.4,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 6,
+       "n_slab_longer": 44
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 409.66,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 4,
+       "n_slab_longer": 46
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 409.42,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 3,
+       "n_slab_longer": 47
+      },
+      "matched": {
+       "time_s": 6.219429888390005,
+       "n_with_solution": 50,
+       "mean_incumbent": 411.36,
+       "mean_slab_same_orders": 414.85333333333335,
+       "n_slab_shorter": 8,
+       "n_slab_longer": 41
+      }
+     }
+    },
+    {
+     "run": "cold-1800",
+     "limit_s": 1800,
+     "n": 20,
+     "source": "or_solution/PPVC/anytime/50x25+ppvc-mixed_cold_1800s_w4.jsonl",
+     "mean_final": 444.6,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 787.3,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 745.45,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 709.35,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 554.7,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 524.9,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 480.1,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 463.65,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "1800": {
+       "time_s": 1800.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 444.6,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 6.219429888390005,
+       "n_with_solution": 20,
+       "mean_incumbent": 740.55,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-spt-1800",
+     "limit_s": 1800,
+     "n": 20,
+     "source": "or_solution/PPVC/anytime/50x25+ppvc-mixed_warm-spt_1800s_w4.jsonl",
+     "mean_final": 439.65,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 448.4,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 446.7,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 446.65,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 445.65,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 444.75,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 442.55,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 441.9,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "1800": {
+       "time_s": 1800.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 439.65,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 6.219429888390005,
+       "n_with_solution": 20,
+       "mean_incumbent": 446.7,
+       "mean_slab_same_orders": 414.4666666666667,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      }
+     }
+    }
+   ]
+  },
+  "Eighty": {
+   "dataset": "80x25+ppvc-mixed",
+   "n": 50,
+   "slab_latency_s": 12.981900300830603,
+   "mean_slab": 570.26,
+   "mean_best_bound": 313.02,
+   "mean_best_known": 562.02,
+   "mean_slab_over_bound": 1.8225389943539048,
+   "mean_best_known_over_bound": 1.7961975782389317,
+   "mean_slab_over_best_known": 1.0146867135530626,
+   "runs": [
+    {
+     "run": "cold",
+     "limit_s": 600,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/80x25+ppvc-mixed_cold_600s_w4.jsonl",
+     "mean_final": 724.54,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 0,
+       "mean_incumbent": null,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 1146.5,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 1139.14,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 917.04,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 823.62,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 749.76,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 724.54,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 12.981900300830603,
+       "n_with_solution": 50,
+       "mean_incumbent": 1132.84,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-spt",
+     "limit_s": 600,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/80x25+ppvc-mixed_warm-spt_600s_w4.jsonl",
+     "mean_final": 617.12,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 620.28,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 619.08,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 619.08,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 618.96,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 618.56,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 617.76,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 617.12,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 12.981900300830603,
+       "n_with_solution": 50,
+       "mean_incumbent": 619.08,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 50,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-policy",
+     "limit_s": 600,
+     "n": 50,
+     "source": "or_solution/PPVC/anytime/80x25+ppvc-mixed_warm-policy-halflag-s301_600s_w4.jsonl",
+     "mean_final": 563.88,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 566.76,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 10,
+       "n_slab_longer": 40
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 565.64,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 9,
+       "n_slab_longer": 41
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 565.38,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 8,
+       "n_slab_longer": 41
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 565.14,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 8,
+       "n_slab_longer": 42
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 564.66,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 6,
+       "n_slab_longer": 43
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 564.18,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 6,
+       "n_slab_longer": 44
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 50,
+       "mean_incumbent": 563.88,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 6,
+       "n_slab_longer": 44
+      },
+      "matched": {
+       "time_s": 12.981900300830603,
+       "n_with_solution": 50,
+       "mean_incumbent": 565.38,
+       "mean_slab_same_orders": 570.26,
+       "n_slab_shorter": 8,
+       "n_slab_longer": 41
+      }
+     }
+    },
+    {
+     "run": "cold-1800",
+     "limit_s": 1800,
+     "n": 20,
+     "source": "or_solution/PPVC/anytime/80x25+ppvc-mixed_cold_1800s_w4.jsonl",
+     "mean_final": 672.05,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 0,
+       "mean_incumbent": null,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 1147.85,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 1139.95,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 912.05,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 830.05,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 745.95,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 719.0,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "1800": {
+       "time_s": 1800.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 672.05,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 12.981900300830603,
+       "n_with_solution": 20,
+       "mean_incumbent": 1131.15,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-spt-1800",
+     "limit_s": 1800,
+     "n": 20,
+     "source": "or_solution/PPVC/anytime/80x25+ppvc-mixed_warm-spt_1800s_w4.jsonl",
+     "mean_final": 616.0,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 620.2,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.8,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.8,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.7,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.45,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 617.6,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 616.95,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "1800": {
+       "time_s": 1800.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 616.0,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 12.981900300830603,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.8,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      }
+     }
+    },
+    {
+     "run": "warm-spt-w16",
+     "limit_s": 600,
+     "n": 20,
+     "source": "or_solution/PPVC/anytime/80x25+ppvc-mixed_warm-spt_600s_w16.jsonl",
+     "mean_final": 615.6,
+     "n_optimal": 0,
+     "checkpoints": {
+      "1": {
+       "time_s": 1.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 620.2,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "5": {
+       "time_s": 5.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.4,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "10": {
+       "time_s": 10.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.35,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "30": {
+       "time_s": 30.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.05,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "60": {
+       "time_s": 60.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 617.55,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "300": {
+       "time_s": 300.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 616.3,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "600": {
+       "time_s": 600.0,
+       "n_with_solution": 20,
+       "mean_incumbent": 615.6,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      },
+      "matched": {
+       "time_s": 12.981900300830603,
+       "n_with_solution": 20,
+       "mean_incumbent": 618.35,
+       "mean_slab_same_orders": 568.5833333333333,
+       "n_slab_shorter": 20,
+       "n_slab_longer": 0
+      }
+     }
+    }
+   ]
+  }
+ }
+}

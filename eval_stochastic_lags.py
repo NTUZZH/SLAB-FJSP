@@ -658,10 +658,14 @@ def reveal_lag(env, op, new_true, op_job, is_last):
     env.candidate_free_time[0, j] = env.op_ct[0, op] + env.op_lag[0, op]
     env.true_candidate_free_time[0, j] = (env.true_op_ct[0, op]
                                           + env.true_op_lag[0, op])
-    if not getattr(env, 'bound_lag_free', False):
-        # the lag-augmented bound of the job's remaining ops moves with the lag
-        last = int(env.job_last_op_id[0, j])
+    # the lag-augmented bound of the job's remaining ops moves with the lag;
+    # the feature bound (op_ct_lb) and the reward bound (op_ct_lb_rw, absent
+    # in older env versions) each follow their own variant
+    last = int(env.job_last_op_id[0, j])
+    if not getattr(env, 'lf_feat', getattr(env, 'bound_lag_free', False)):
         env.op_ct_lb[0, op + 1:last + 1] += delta
+    if hasattr(env, 'op_ct_lb_rw') and not env.lf_reward:
+        env.op_ct_lb_rw[0, op + 1:last + 1] += delta
     return True
 
 
@@ -920,15 +924,18 @@ def main():
         return int(cu.greedy_select_action(pi).cpu().numpy()[0])
 
     blf = bool(getattr(ep, '_model_bound_lag_free', lambda: False)())
+    # the three bound flags of the model (eval_ppvc versions without the split
+    # flags know only bound_lag_free)
+    bound_kw = (ep._model_bound_kwargs() if hasattr(ep, '_model_bound_kwargs')
+                else ({'bound_lag_free': True} if blf else {}))
+    if not any(bound_kw.values()):
+        bound_kw = {}
 
     def policy_env(meta_):
         # the policy's env carries its lower-bound variant; older eval_ppvc
         # versions have no bound_lag_free argument
-        if blf:
-            return ep._new_env(jl_cur[0], pt_cur[0], meta_, use_lag_features,
-                               use_type_embedding, bound_lag_free=True)[0]
         return ep._new_env(jl_cur[0], pt_cur[0], meta_, use_lag_features,
-                           use_type_embedding)[0]
+                           use_type_embedding, **bound_kw)[0]
 
     jl_cur, pt_cur = [None], [None]
 

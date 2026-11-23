@@ -1,0 +1,36 @@
+{
+ "seed0": 100000,
+ "n_instances": 50,
+ "n_modules": 50,
+ "ppvc_mix": "mixed",
+ "source_set": "50x25+ppvc-mixed",
+ "source_orders": "instance_000 to instance_049",
+ "paired_with_source": true,
+ "route_variant_note": "fixed routes",
+ "generator": "ppvc_instance_generator.py",
+ "generator_sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633",
+ "written_by": "make_ood_testsets.py",
+ "condition": "station count",
+ "n_stations": 35,
+ "ppvc_factory": "scaled-35",
+ "station_counts": {
+  "A": 4,
+  "B": 3,
+  "C": 6,
+  "D": 6,
+  "E": 4,
+  "F": 4,
+  "G": 1,
+  "H": 3,
+  "Q": 4
+ },
+ "station_count_rule": "default counts x total/25, largest remainder, at least one per type; remainder ties to the larger default count, then STATION_TYPES order",
+ "pt_deviation": 0.2,
+ "extra_station_stream": [
+  104729,
+  "seed"
+ ],
+ "extra_draws_per_operation": 4,
+ "pairing": "classes, module weights, routes, nominal durations and waits of the source order; the first k stations of each type keep the source processing times; added stations draw nominal x U(0.8, 1.2) from the separate stream; removed stations drop their column",
+ "purpose": "out-of-distribution test set: 50x25+ppvc-mixed on a 35-station factory"
+}

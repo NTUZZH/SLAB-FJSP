@@ -99,9 +99,20 @@ parser.add_argument('--ppvc_route_variant', type=str, default='fixed', choices=[
                          "uses FJSPEnvForVariousOpNums and the '-var' data name suffix)")
 parser.add_argument('--bound_lag_free', type=str2bool, default=False,
                     help="(Ablation of Adaptation 2a) compute the completion-time lower bound "
-                         "without the predecessor time-lag term (original DANIEL per-job cumsum); "
+                         "without the predecessor time-lag term (original DANIEL per-job cumsum), "
+                         "in both the reward and the state features; "
                          "the environment dynamics keep the lags. Fixed-route env only. "
                          "Recorded in the config snapshot; eval_ppvc.py applies it from there.")
+parser.add_argument('--bound_lag_free_reward', type=str2bool, default=False,
+                    help="(Bound ablation, reward only) the reward uses the lag-free lower bound "
+                         "while the state features keep the lag-augmented bound. "
+                         "--bound_lag_free True sets both this and --bound_lag_free_features. "
+                         "Fixed-route env only. Recorded in the config snapshot.")
+parser.add_argument('--bound_lag_free_features', type=str2bool, default=False,
+                    help="(Bound ablation, features only) the bound channel of the operation "
+                         "features uses the lag-free lower bound while the reward keeps the "
+                         "lag-augmented bound. Fixed-route env only. Recorded in the config "
+                         "snapshot; eval_ppvc.py applies it from there.")
 parser.add_argument('--ppvc_lag_cv', type=float, default=0.0,
                     help="Lag randomization in PPVC training: every training instance's nonzero lags "
                          "are multiplied by a per-op lognormal factor (mean 1, this coefficient of "

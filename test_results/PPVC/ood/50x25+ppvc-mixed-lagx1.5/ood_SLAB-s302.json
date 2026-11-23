@@ -1,0 +1,455 @@
+{
+ "dataset": "50x25+ppvc-mixed-lagx1.5",
+ "method": "SLAB-s302",
+ "n_instances": 50,
+ "model": "10x25+ppvc-mixed+a1lagx05-2k-s302",
+ "checkpoint": "./trained_network/PPVC/10x25+ppvc-mixed+a1lagx05-2k-s302.pth",
+ "checkpoint_sha256": "0ba2b382abbe783874c640db4ad4ab92a38db469c5dd707d4d5fb3702b2c9d79",
+ "decoding": "greedy",
+ "seed_test": 50,
+ "tie_seed": null,
+ "validated": true,
+ "validation": "schedule_validator.validate_schedule against the time_lag of this set; validator makespan equals the environment makespan",
+ "dataset_meta": {
+  "seed0": 100000,
+  "n_instances": 50,
+  "n_modules": 50,
+  "ppvc_mix": "mixed",
+  "ppvc_factory": "default",
+  "purpose": "shifted-lag transfer test set: 50x25+ppvc-mixed with every lag x1.5 (rounded)",
+  "lag_scale": 1.5,
+  "source_set": "50x25+ppvc-mixed"
+ },
+ "definitions": {
+  "queue_h": "sum over consecutive operations of successor start - predecessor completion - wait (h)",
+  "wait_h": "sum of the waits between consecutive operations (h)",
+  "sigma": "queue_h / (queue_h + wait_h)"
+ },
+ "provenance": {
+  "modules": {
+   "eval_ppvc": {
+    "path": "eval_ppvc.py",
+    "sha256": "83e6639ec38f67ea617834b792addb5b1f3ae64a21f3b70c581a12770b584a5f"
+   },
+   "params": {
+    "path": "params.py",
+    "sha256": "dc215215ccd08add8808a13082111163693abb4f24eed1bfb41e8c2a387d9a2f"
+   },
+   "fjsp_env_same_op_nums": {
+    "path": "fjsp_env_same_op_nums.py",
+    "sha256": "d8381b67787e5b9b5accc977552ac944e7f8858fc1822368646981318d236e1a"
+   },
+   "common_utils": {
+    "path": "common_utils.py",
+    "sha256": "708df92289d91a780c4174a9e69609c4d6823c93a558c82e79f2d9f3d9e4386d"
+   },
+   "model.main_model": {
+    "path": "model/main_model.py",
+    "sha256": "0b825dbb49686919b8e737a4cfb02f4879e442f97fc4dc5310c98523283cda64"
+   },
+   "model.PPO": {
+    "path": "model/PPO.py",
+    "sha256": "07581f0401b787174f825f9048615d2d4f547f013e6af32ce1a90abad392e9b1"
+   },
+   "model.sub_layers": {
+    "path": "model/sub_layers.py",
+    "sha256": "da05748f0054a9c5657ac16fe5d114956bcbef3e151f2f48812586db5e7051f3"
+   },
+   "model.attention_layer": {
+    "path": "model/attention_layer.py",
+    "sha256": "a6fec1a17592dcb064ca9d60cfe2e90a5da7b0d4891a8fd5cd37d341b6ce98c7"
+   },
+   "schedule_validator": {
+    "path": "schedule_validator.py",
+    "sha256": "3c6f41b00f6a70220533c9c75b97eb71107fd75b1a972d355d57951ec57831d3"
+   },
+   "eval_byproducts": {
+    "path": "eval_byproducts.py",
+    "sha256": "3022b2c9f33239257583cdf843b5495b8fa39ccba8fa37f1c6de7bde4c0e8e82"
+   },
+   "ppvc_instance_generator": {
+    "path": "ppvc_instance_generator.py",
+    "sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633"
+   },
+   "data_utils": {
+    "path": "data_utils.py",
+    "sha256": "b4424b851c625f3848a6c06e37a4c04d740e35040bad0a9bd53da62f46769c19"
+   }
+  },
+  "source": "frozen copy of a repository commit",
+  "source_commit": "07923569f32a094c36951503b521fd726d43a00e",
+  "affinity": [
+   9
+  ],
+  "torch_threads": 1,
+  "torch_interop_threads": 1,
+  "env_threads": {
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "OPENBLAS_NUM_THREADS": "1",
+   "CUDA_VISIBLE_DEVICES": ""
+  },
+  "device": "cpu",
+  "python_executable": "~/miniconda3/envs/fjsp/bin/python",
+  "python": "3.11.15",
+  "torch": "2.11.0+cu128",
+  "numpy": "1.26.4"
+ },
+ "started": "2026-11-23T03:44:36",
+ "elapsed_s": 319.02606534957886,
+ "elapsed_note": "bookkeeping only, not a timing measurement",
+ "mean_makespan": 449.08,
+ "mean_sigma": 0.40291236931479474,
+ "per_instance": [
+  {
+   "instance": "instance_000",
+   "makespan": 449.0,
+   "queue_h": 4318.0,
+   "wait_h": 6102.0,
+   "sigma": 0.41439539347408827
+  },
+  {
+   "instance": "instance_001",
+   "makespan": 437.0,
+   "queue_h": 4129.0,
+   "wait_h": 5968.0,
+   "sigma": 0.4089333465385758
+  },
+  {
+   "instance": "instance_002",
+   "makespan": 445.0,
+   "queue_h": 3873.0,
+   "wait_h": 6193.0,
+   "sigma": 0.3847605801708722
+  },
+  {
+   "instance": "instance_003",
+   "makespan": 459.0,
+   "queue_h": 4309.0,
+   "wait_h": 6365.0,
+   "sigma": 0.4036912122915496
+  },
+  {
+   "instance": "instance_004",
+   "makespan": 450.0,
+   "queue_h": 4261.0,
+   "wait_h": 6070.0,
+   "sigma": 0.41244797212273737
+  },
+  {
+   "instance": "instance_005",
+   "makespan": 447.0,
+   "queue_h": 3875.0,
+   "wait_h": 6085.0,
+   "sigma": 0.3890562248995984
+  },
+  {
+   "instance": "instance_006",
+   "makespan": 450.0,
+   "queue_h": 4405.0,
+   "wait_h": 6172.0,
+   "sigma": 0.41646969840219344
+  },
+  {
+   "instance": "instance_007",
+   "makespan": 443.0,
+   "queue_h": 4040.0,
+   "wait_h": 5728.0,
+   "sigma": 0.4135954135954136
+  },
+  {
+   "instance": "instance_008",
+   "makespan": 456.0,
+   "queue_h": 4449.0,
+   "wait_h": 6274.0,
+   "sigma": 0.4149025459293108
+  },
+  {
+   "instance": "instance_009",
+   "makespan": 458.0,
+   "queue_h": 4506.0,
+   "wait_h": 6228.0,
+   "sigma": 0.41978759083286754
+  },
+  {
+   "instance": "instance_010",
+   "makespan": 448.0,
+   "queue_h": 3785.0,
+   "wait_h": 6331.0,
+   "sigma": 0.37415974693554765
+  },
+  {
+   "instance": "instance_011",
+   "makespan": 443.0,
+   "queue_h": 4011.0,
+   "wait_h": 5885.0,
+   "sigma": 0.4053152789005659
+  },
+  {
+   "instance": "instance_012",
+   "makespan": 445.0,
+   "queue_h": 3829.0,
+   "wait_h": 6239.0,
+   "sigma": 0.38031386571315057
+  },
+  {
+   "instance": "instance_013",
+   "makespan": 448.0,
+   "queue_h": 3803.0,
+   "wait_h": 6614.0,
+   "sigma": 0.36507631755783815
+  },
+  {
+   "instance": "instance_014",
+   "makespan": 448.0,
+   "queue_h": 4190.0,
+   "wait_h": 6159.0,
+   "sigma": 0.4048700357522466
+  },
+  {
+   "instance": "instance_015",
+   "makespan": 459.0,
+   "queue_h": 4235.0,
+   "wait_h": 6263.0,
+   "sigma": 0.4034101733663555
+  },
+  {
+   "instance": "instance_016",
+   "makespan": 438.0,
+   "queue_h": 3897.0,
+   "wait_h": 5941.0,
+   "sigma": 0.39611709697092906
+  },
+  {
+   "instance": "instance_017",
+   "makespan": 449.0,
+   "queue_h": 4100.0,
+   "wait_h": 6031.0,
+   "sigma": 0.40469845030105617
+  },
+  {
+   "instance": "instance_018",
+   "makespan": 444.0,
+   "queue_h": 4009.0,
+   "wait_h": 6137.0,
+   "sigma": 0.3951310861423221
+  },
+  {
+   "instance": "instance_019",
+   "makespan": 447.0,
+   "queue_h": 3890.0,
+   "wait_h": 6169.0,
+   "sigma": 0.3867183616661696
+  },
+  {
+   "instance": "instance_020",
+   "makespan": 443.0,
+   "queue_h": 4005.0,
+   "wait_h": 6277.0,
+   "sigma": 0.38951565843221164
+  },
+  {
+   "instance": "instance_021",
+   "makespan": 448.0,
+   "queue_h": 3961.0,
+   "wait_h": 5969.0,
+   "sigma": 0.3988922457200403
+  },
+  {
+   "instance": "instance_022",
+   "makespan": 438.0,
+   "queue_h": 3818.0,
+   "wait_h": 5863.0,
+   "sigma": 0.3943807457907241
+  },
+  {
+   "instance": "instance_023",
+   "makespan": 443.0,
+   "queue_h": 3801.0,
+   "wait_h": 6320.0,
+   "sigma": 0.3755557751210355
+  },
+  {
+   "instance": "instance_024",
+   "makespan": 448.0,
+   "queue_h": 3911.0,
+   "wait_h": 6012.0,
+   "sigma": 0.39413483825456014
+  },
+  {
+   "instance": "instance_025",
+   "makespan": 453.0,
+   "queue_h": 4562.0,
+   "wait_h": 6238.0,
+   "sigma": 0.4224074074074074
+  },
+  {
+   "instance": "instance_026",
+   "makespan": 448.0,
+   "queue_h": 4028.0,
+   "wait_h": 6361.0,
+   "sigma": 0.38771777841948213
+  },
+  {
+   "instance": "instance_027",
+   "makespan": 464.0,
+   "queue_h": 4388.0,
+   "wait_h": 6315.0,
+   "sigma": 0.4099785106979352
+  },
+  {
+   "instance": "instance_028",
+   "makespan": 444.0,
+   "queue_h": 3968.0,
+   "wait_h": 6351.0,
+   "sigma": 0.3845333850179281
+  },
+  {
+   "instance": "instance_029",
+   "makespan": 458.0,
+   "queue_h": 4348.0,
+   "wait_h": 6225.0,
+   "sigma": 0.4112361675967086
+  },
+  {
+   "instance": "instance_030",
+   "makespan": 451.0,
+   "queue_h": 4470.0,
+   "wait_h": 5800.0,
+   "sigma": 0.4352482960077897
+  },
+  {
+   "instance": "instance_031",
+   "makespan": 451.0,
+   "queue_h": 4432.0,
+   "wait_h": 6137.0,
+   "sigma": 0.4193395780111647
+  },
+  {
+   "instance": "instance_032",
+   "makespan": 451.0,
+   "queue_h": 4246.0,
+   "wait_h": 6282.0,
+   "sigma": 0.40330547112462006
+  },
+  {
+   "instance": "instance_033",
+   "makespan": 446.0,
+   "queue_h": 4184.0,
+   "wait_h": 5837.0,
+   "sigma": 0.4175232012773176
+  },
+  {
+   "instance": "instance_034",
+   "makespan": 451.0,
+   "queue_h": 4375.0,
+   "wait_h": 5970.0,
+   "sigma": 0.42290961817303047
+  },
+  {
+   "instance": "instance_035",
+   "makespan": 444.0,
+   "queue_h": 4137.0,
+   "wait_h": 5923.0,
+   "sigma": 0.41123260437375747
+  },
+  {
+   "instance": "instance_036",
+   "makespan": 455.0,
+   "queue_h": 4718.0,
+   "wait_h": 6211.0,
+   "sigma": 0.43169548906578825
+  },
+  {
+   "instance": "instance_037",
+   "makespan": 448.0,
+   "queue_h": 4203.0,
+   "wait_h": 6082.0,
+   "sigma": 0.40865337870685464
+  },
+  {
+   "instance": "instance_038",
+   "makespan": 457.0,
+   "queue_h": 4048.0,
+   "wait_h": 6022.0,
+   "sigma": 0.4019860973187686
+  },
+  {
+   "instance": "instance_039",
+   "makespan": 441.0,
+   "queue_h": 4143.0,
+   "wait_h": 5857.0,
+   "sigma": 0.4143
+  },
+  {
+   "instance": "instance_040",
+   "makespan": 472.0,
+   "queue_h": 4727.0,
+   "wait_h": 6261.0,
+   "sigma": 0.43019657808518386
+  },
+  {
+   "instance": "instance_041",
+   "makespan": 444.0,
+   "queue_h": 3930.0,
+   "wait_h": 5887.0,
+   "sigma": 0.40032596516247326
+  },
+  {
+   "instance": "instance_042",
+   "makespan": 431.0,
+   "queue_h": 3286.0,
+   "wait_h": 6106.0,
+   "sigma": 0.34987223168654175
+  },
+  {
+   "instance": "instance_043",
+   "makespan": 450.0,
+   "queue_h": 4141.0,
+   "wait_h": 6144.0,
+   "sigma": 0.4026251823043267
+  },
+  {
+   "instance": "instance_044",
+   "makespan": 463.0,
+   "queue_h": 4268.0,
+   "wait_h": 6084.0,
+   "sigma": 0.4122874806800618
+  },
+  {
+   "instance": "instance_045",
+   "makespan": 445.0,
+   "queue_h": 4259.0,
+   "wait_h": 5905.0,
+   "sigma": 0.41902794175521446
+  },
+  {
+   "instance": "instance_046",
+   "makespan": 440.0,
+   "queue_h": 4000.0,
+   "wait_h": 5949.0,
+   "sigma": 0.4020504573323952
+  },
+  {
+   "instance": "instance_047",
+   "makespan": 465.0,
+   "queue_h": 4533.0,
+   "wait_h": 6741.0,
+   "sigma": 0.40207557211282596
+  },
+  {
+   "instance": "instance_048",
+   "makespan": 450.0,
+   "queue_h": 4298.0,
+   "wait_h": 6334.0,
+   "sigma": 0.40425131677953346
+  },
+  {
+   "instance": "instance_049",
+   "makespan": 449.0,
+   "queue_h": 3966.0,
+   "wait_h": 6087.0,
+   "sigma": 0.39450910176066845
+  }
+ ]
+}

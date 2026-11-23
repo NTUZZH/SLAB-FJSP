@@ -20,7 +20,7 @@ Pipeline (per instance, batch of 1, greedy decoding):
   * both schedules are checked by schedule_validator.validate_schedule with
     the true lags.
 
-Outputs (under --out, default "IEEE Paper/draft/figures_src"):
+Outputs (under --out, default "figures_src"):
   fig_gantt.pdf / .png        double-column figure (7.16 in wide)
   fig_gantt_single.pdf / .png single-column variant (3.5 in wide)
   fig_gantt_data.json         all makespans, the chosen instance, and the two
@@ -57,7 +57,7 @@ def parse_cli():
                     metavar=('LAG_AWARE', 'LAG_BLIND'),
                     help='lag-aware checkpoint stem, lag-blind checkpoint stem')
     ap.add_argument('--out', type=str,
-                    default=os.path.join('IEEE Paper', 'draft', 'figures_src'))
+                    default='figures_src')
     ap.add_argument('--device', type=str, default='cpu')
     ap.add_argument('--seed_test', type=int, default=50)
     ap.add_argument('--plot_only', action='store_true',
@@ -79,7 +79,7 @@ ARCH_KEYS = (
     'num_mlp_layers_critic', 'hidden_dim_critic',
     'dropout_prob',
     'framework',
-    'bound_lag_free',
+    'bound_lag_free', 'bound_lag_free_reward', 'bound_lag_free_features',
 )
 
 # Lag type of each lag-carrying operation (all other operations have no lag).
@@ -107,6 +107,8 @@ def load_model(model_name, device):
     with open(path) as f:
         snap = json.load(f)
     configs.bound_lag_free = False
+    configs.bound_lag_free_reward = False
+    configs.bound_lag_free_features = False
     for k in ARCH_KEYS:
         if k in snap and snap[k] is not None:
             setattr(configs, k, snap[k])
@@ -123,7 +125,11 @@ def load_model(model_name, device):
     flags = dict(use_lag_features=bool(configs.use_lag_features),
                  use_type_embedding=bool(configs.use_type_embedding),
                  bound_lag_free=bool(getattr(configs, 'bound_lag_free',
-                                             False)))
+                                             False)),
+                 bound_lag_free_reward=bool(getattr(configs, 'bound_lag_free_reward',
+                                                    False)),
+                 bound_lag_free_features=bool(getattr(configs, 'bound_lag_free_features',
+                                                      False)))
     return ppo, flags
 
 
@@ -138,8 +144,9 @@ def greedy_rollout(ppo, flags, jl, pt, meta, lag_aware):
     M = pt.shape[1]
     kw_env = dict(n_j=jl.shape[0], n_m=M,
                   use_lag_features=flags['use_lag_features'])
-    if lag_aware and flags['bound_lag_free']:
-        kw_env['bound_lag_free'] = True
+    for k in ('bound_lag_free', 'bound_lag_free_reward', 'bound_lag_free_features'):
+        if lag_aware and flags[k]:
+            kw_env[k] = True
     env = FJSPEnvForSameOpNums(**kw_env)
     kwargs = dict(time_lag_list=[meta['time_lag']] if lag_aware else None)
     if flags['use_type_embedding']:

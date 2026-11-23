@@ -1,0 +1,29 @@
+{
+ "seed0": 100000,
+ "n_instances": 50,
+ "n_modules": 50,
+ "ppvc_mix": "mixed",
+ "source_set": "50x25+ppvc-mixed",
+ "source_orders": "instance_000 to instance_049",
+ "paired_with_source": true,
+ "route_variant_note": "fixed routes",
+ "generator": "ppvc_instance_generator.py",
+ "generator_sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633",
+ "written_by": "make_ood_testsets.py",
+ "condition": "duration spread",
+ "pt_deviation": 0.4,
+ "ppvc_factory": "default",
+ "station_counts": {
+  "A": 3,
+  "B": 2,
+  "C": 4,
+  "D": 4,
+  "E": 3,
+  "F": 3,
+  "G": 1,
+  "H": 2,
+  "Q": 3
+ },
+ "pairing": "same seed: classes, module weights, routes, nominal durations, waits and the standard uniform draw of every (operation, station) equal the source order; processing time = max(1, round(nominal x (1 - 0.4 + 0.8 v)))",
+ "purpose": "out-of-distribution test set: 50x25+ppvc-mixed with processing-time spread +-0.4"
+}

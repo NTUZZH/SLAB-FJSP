@@ -1,0 +1,195 @@
+{
+ "generator_sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633",
+ "python_executable": "~/miniconda3/envs/fjsp/bin/python",
+ "numpy": "1.26.4",
+ "sets": {
+  "10x25+ppvc-mixed-lagx0.5-ood": {
+   "orders": 100,
+   "new": 0,
+   "existing_equal": 100,
+   "nonzero_wait_range_h": [
+    6,
+    24
+   ]
+  },
+  "10x25+ppvc-mixed-lagx2": {
+   "orders": 100,
+   "new": 0,
+   "existing_equal": 100,
+   "nonzero_wait_range_h": [
+    24,
+    96
+   ]
+  },
+  "10x25+ppvc-mixed-lagx3": {
+   "orders": 100,
+   "new": 0,
+   "existing_equal": 100,
+   "nonzero_wait_range_h": [
+    36,
+    144
+   ]
+  },
+  "10x20+ppvc-mixed-ood": {
+   "orders": 100,
+   "new": 0,
+   "existing_equal": 100,
+   "station_counts": {
+    "A": 3,
+    "B": 2,
+    "C": 3,
+    "D": 3,
+    "E": 2,
+    "F": 2,
+    "G": 1,
+    "H": 2,
+    "Q": 2
+   },
+   "shared_cells": 51956,
+   "added_cells": 0,
+   "direct_generator_same_classes": 100,
+   "direct_generator_same_waits_and_weights": 0
+  },
+  "10x30+ppvc-mixed-ood": {
+   "orders": 100,
+   "new": 0,
+   "existing_equal": 100,
+   "station_counts": {
+    "A": 4,
+    "B": 2,
+    "C": 5,
+    "D": 5,
+    "E": 4,
+    "F": 4,
+    "G": 1,
+    "H": 2,
+    "Q": 3
+   },
+   "shared_cells": 68467,
+   "added_cells": 14467,
+   "direct_generator_same_classes": 100,
+   "direct_generator_same_waits_and_weights": 0
+  },
+  "10x35+ppvc-mixed-ood": {
+   "orders": 100,
+   "new": 0,
+   "existing_equal": 100,
+   "station_counts": {
+    "A": 4,
+    "B": 3,
+    "C": 6,
+    "D": 6,
+    "E": 4,
+    "F": 4,
+    "G": 1,
+    "H": 3,
+    "Q": 4
+   },
+   "shared_cells": 68467,
+   "added_cells": 28000,
+   "direct_generator_same_classes": 100,
+   "direct_generator_same_waits_and_weights": 0
+  },
+  "10x25+ppvc-mixed-ptdev0.4": {
+   "orders": 100,
+   "new": 0,
+   "existing_equal": 100,
+   "mean_abs_rel_dev_shifted": 0.1900631199636532,
+   "mean_abs_rel_dev_source": 0.06982371424379115
+  },
+  "50x25+ppvc-mixed-lagx0.5-ood": {
+   "orders": 50,
+   "new": 0,
+   "existing_equal": 50,
+   "nonzero_wait_range_h": [
+    6,
+    24
+   ]
+  },
+  "50x25+ppvc-mixed-lagx2": {
+   "orders": 50,
+   "new": 0,
+   "existing_equal": 50,
+   "nonzero_wait_range_h": [
+    24,
+    96
+   ]
+  },
+  "50x25+ppvc-mixed-lagx3": {
+   "orders": 50,
+   "new": 0,
+   "existing_equal": 50,
+   "nonzero_wait_range_h": [
+    36,
+    144
+   ]
+  },
+  "50x20+ppvc-mixed-ood": {
+   "orders": 50,
+   "new": 0,
+   "existing_equal": 50,
+   "station_counts": {
+    "A": 3,
+    "B": 2,
+    "C": 3,
+    "D": 3,
+    "E": 2,
+    "F": 2,
+    "G": 1,
+    "H": 2,
+    "Q": 2
+   },
+   "shared_cells": 130112,
+   "added_cells": 0,
+   "direct_generator_same_classes": 50,
+   "direct_generator_same_waits_and_weights": 0
+  },
+  "50x30+ppvc-mixed-ood": {
+   "orders": 50,
+   "new": 0,
+   "existing_equal": 50,
+   "station_counts": {
+    "A": 4,
+    "B": 2,
+    "C": 5,
+    "D": 5,
+    "E": 4,
+    "F": 4,
+    "G": 1,
+    "H": 2,
+    "Q": 3
+   },
+   "shared_cells": 171334,
+   "added_cells": 36334,
+   "direct_generator_same_classes": 50,
+   "direct_generator_same_waits_and_weights": 0
+  },
+  "50x35+ppvc-mixed-ood": {
+   "orders": 50,
+   "new": 0,
+   "existing_equal": 50,
+   "station_counts": {
+    "A": 4,
+    "B": 3,
+    "C": 6,
+    "D": 6,
+    "E": 4,
+    "F": 4,
+    "G": 1,
+    "H": 3,
+    "Q": 4
+   },
+   "shared_cells": 171334,
+   "added_cells": 70000,
+   "direct_generator_same_classes": 50,
+   "direct_generator_same_waits_and_weights": 0
+  },
+  "50x25+ppvc-mixed-ptdev0.4": {
+   "orders": 50,
+   "new": 0,
+   "existing_equal": 50,
+   "mean_abs_rel_dev_shifted": 0.1904425372131637,
+   "mean_abs_rel_dev_source": 0.07012978188101707
+  }
+ }
+}

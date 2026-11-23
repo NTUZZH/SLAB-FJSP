@@ -1,0 +1,481 @@
+{
+ "dataset": "50x35+ppvc-mixed-ood",
+ "method": "LLF",
+ "n_instances": 50,
+ "model": null,
+ "checkpoint": null,
+ "checkpoint_sha256": null,
+ "decoding": null,
+ "seed_test": 50,
+ "tie_seed": "seed_test + order index (eval_ppvc rules)",
+ "validated": true,
+ "validation": "schedule_validator.validate_schedule against the time_lag of this set; validator makespan equals the environment makespan",
+ "dataset_meta": {
+  "seed0": 100000,
+  "n_instances": 50,
+  "n_modules": 50,
+  "ppvc_mix": "mixed",
+  "source_set": "50x25+ppvc-mixed",
+  "source_orders": "instance_000 to instance_049",
+  "paired_with_source": true,
+  "route_variant_note": "fixed routes",
+  "generator": "ppvc_instance_generator.py",
+  "generator_sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633",
+  "written_by": "make_ood_testsets.py",
+  "condition": "station count",
+  "n_stations": 35,
+  "ppvc_factory": "scaled-35",
+  "station_counts": {
+   "A": 4,
+   "B": 3,
+   "C": 6,
+   "D": 6,
+   "E": 4,
+   "F": 4,
+   "G": 1,
+   "H": 3,
+   "Q": 4
+  },
+  "station_count_rule": "default counts x total/25, largest remainder, at least one per type; remainder ties to the larger default count, then STATION_TYPES order",
+  "pt_deviation": 0.2,
+  "extra_station_stream": [
+   104729,
+   "seed"
+  ],
+  "extra_draws_per_operation": 4,
+  "pairing": "classes, module weights, routes, nominal durations and waits of the source order; the first k stations of each type keep the source processing times; added stations draw nominal x U(0.8, 1.2) from the separate stream; removed stations drop their column",
+  "purpose": "out-of-distribution test set: 50x25+ppvc-mixed on a 35-station factory"
+ },
+ "definitions": {
+  "queue_h": "sum over consecutive operations of successor start - predecessor completion - wait (h)",
+  "wait_h": "sum of the waits between consecutive operations (h)",
+  "sigma": "queue_h / (queue_h + wait_h)"
+ },
+ "provenance": {
+  "modules": {
+   "eval_ppvc": {
+    "path": "eval_ppvc.py",
+    "sha256": "83e6639ec38f67ea617834b792addb5b1f3ae64a21f3b70c581a12770b584a5f"
+   },
+   "params": {
+    "path": "params.py",
+    "sha256": "dc215215ccd08add8808a13082111163693abb4f24eed1bfb41e8c2a387d9a2f"
+   },
+   "fjsp_env_same_op_nums": {
+    "path": "fjsp_env_same_op_nums.py",
+    "sha256": "d8381b67787e5b9b5accc977552ac944e7f8858fc1822368646981318d236e1a"
+   },
+   "common_utils": {
+    "path": "common_utils.py",
+    "sha256": "708df92289d91a780c4174a9e69609c4d6823c93a558c82e79f2d9f3d9e4386d"
+   },
+   "model.main_model": {
+    "path": "model/main_model.py",
+    "sha256": "0b825dbb49686919b8e737a4cfb02f4879e442f97fc4dc5310c98523283cda64"
+   },
+   "model.PPO": {
+    "path": "model/PPO.py",
+    "sha256": "07581f0401b787174f825f9048615d2d4f547f013e6af32ce1a90abad392e9b1"
+   },
+   "model.sub_layers": {
+    "path": "model/sub_layers.py",
+    "sha256": "da05748f0054a9c5657ac16fe5d114956bcbef3e151f2f48812586db5e7051f3"
+   },
+   "model.attention_layer": {
+    "path": "model/attention_layer.py",
+    "sha256": "a6fec1a17592dcb064ca9d60cfe2e90a5da7b0d4891a8fd5cd37d341b6ce98c7"
+   },
+   "schedule_validator": {
+    "path": "schedule_validator.py",
+    "sha256": "3c6f41b00f6a70220533c9c75b97eb71107fd75b1a972d355d57951ec57831d3"
+   },
+   "eval_byproducts": {
+    "path": "eval_byproducts.py",
+    "sha256": "3022b2c9f33239257583cdf843b5495b8fa39ccba8fa37f1c6de7bde4c0e8e82"
+   },
+   "ppvc_instance_generator": {
+    "path": "ppvc_instance_generator.py",
+    "sha256": "8244e1143840f15b4da6a2b569b9746421a278536b8c7cfcc09c53fe1a264633"
+   },
+   "data_utils": {
+    "path": "data_utils.py",
+    "sha256": "b4424b851c625f3848a6c06e37a4c04d740e35040bad0a9bd53da62f46769c19"
+   }
+  },
+  "source": "frozen copy of a repository commit",
+  "source_commit": "07923569f32a094c36951503b521fd726d43a00e",
+  "affinity": [
+   8
+  ],
+  "torch_threads": 1,
+  "torch_interop_threads": 1,
+  "env_threads": {
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "OPENBLAS_NUM_THREADS": "1",
+   "CUDA_VISIBLE_DEVICES": ""
+  },
+  "device": "cpu",
+  "python_executable": "~/miniconda3/envs/fjsp/bin/python",
+  "python": "3.11.15",
+  "torch": "2.11.0+cu128",
+  "numpy": "1.26.4"
+ },
+ "started": "2026-11-23T03:17:24",
+ "elapsed_s": 80.15065956115723,
+ "elapsed_note": "bookkeeping only, not a timing measurement",
+ "mean_makespan": 357.54,
+ "mean_sigma": 0.5220148988264964,
+ "per_instance": [
+  {
+   "instance": "instance_000",
+   "makespan": 358.0,
+   "queue_h": 4254.0,
+   "wait_h": 4066.0,
+   "sigma": 0.5112980769230769
+  },
+  {
+   "instance": "instance_001",
+   "makespan": 343.0,
+   "queue_h": 4021.0,
+   "wait_h": 3980.0,
+   "sigma": 0.502562179727534
+  },
+  {
+   "instance": "instance_002",
+   "makespan": 361.0,
+   "queue_h": 4597.0,
+   "wait_h": 4124.0,
+   "sigma": 0.527118449719069
+  },
+  {
+   "instance": "instance_003",
+   "makespan": 370.0,
+   "queue_h": 4923.0,
+   "wait_h": 4238.0,
+   "sigma": 0.537386748171597
+  },
+  {
+   "instance": "instance_004",
+   "makespan": 356.0,
+   "queue_h": 4139.0,
+   "wait_h": 4047.0,
+   "sigma": 0.5056193501099439
+  },
+  {
+   "instance": "instance_005",
+   "makespan": 365.0,
+   "queue_h": 5103.0,
+   "wait_h": 4055.0,
+   "sigma": 0.5572177331295043
+  },
+  {
+   "instance": "instance_006",
+   "makespan": 367.0,
+   "queue_h": 4919.0,
+   "wait_h": 4108.0,
+   "sigma": 0.5449207931760275
+  },
+  {
+   "instance": "instance_007",
+   "makespan": 344.0,
+   "queue_h": 4190.0,
+   "wait_h": 3820.0,
+   "sigma": 0.5230961298377028
+  },
+  {
+   "instance": "instance_008",
+   "makespan": 356.0,
+   "queue_h": 4103.0,
+   "wait_h": 4180.0,
+   "sigma": 0.4953519256308101
+  },
+  {
+   "instance": "instance_009",
+   "makespan": 365.0,
+   "queue_h": 4975.0,
+   "wait_h": 4150.0,
+   "sigma": 0.5452054794520548
+  },
+  {
+   "instance": "instance_010",
+   "makespan": 364.0,
+   "queue_h": 4685.0,
+   "wait_h": 4221.0,
+   "sigma": 0.5260498540309904
+  },
+  {
+   "instance": "instance_011",
+   "makespan": 354.0,
+   "queue_h": 4358.0,
+   "wait_h": 3920.0,
+   "sigma": 0.5264556656197149
+  },
+  {
+   "instance": "instance_012",
+   "makespan": 352.0,
+   "queue_h": 3754.0,
+   "wait_h": 4159.0,
+   "sigma": 0.4744092000505497
+  },
+  {
+   "instance": "instance_013",
+   "makespan": 353.0,
+   "queue_h": 3624.0,
+   "wait_h": 4413.0,
+   "sigma": 0.45091452034341173
+  },
+  {
+   "instance": "instance_014",
+   "makespan": 352.0,
+   "queue_h": 3622.0,
+   "wait_h": 4104.0,
+   "sigma": 0.4688066269738545
+  },
+  {
+   "instance": "instance_015",
+   "makespan": 358.0,
+   "queue_h": 4296.0,
+   "wait_h": 4172.0,
+   "sigma": 0.507321681624941
+  },
+  {
+   "instance": "instance_016",
+   "makespan": 349.0,
+   "queue_h": 4299.0,
+   "wait_h": 3957.0,
+   "sigma": 0.5207122093023255
+  },
+  {
+   "instance": "instance_017",
+   "makespan": 354.0,
+   "queue_h": 4171.0,
+   "wait_h": 4013.0,
+   "sigma": 0.509652981427175
+  },
+  {
+   "instance": "instance_018",
+   "makespan": 361.0,
+   "queue_h": 4767.0,
+   "wait_h": 4092.0,
+   "sigma": 0.5380968506603454
+  },
+  {
+   "instance": "instance_019",
+   "makespan": 360.0,
+   "queue_h": 4182.0,
+   "wait_h": 4112.0,
+   "sigma": 0.5042199180130215
+  },
+  {
+   "instance": "instance_020",
+   "makespan": 359.0,
+   "queue_h": 4607.0,
+   "wait_h": 4190.0,
+   "sigma": 0.5237012617937934
+  },
+  {
+   "instance": "instance_021",
+   "makespan": 360.0,
+   "queue_h": 4811.0,
+   "wait_h": 3982.0,
+   "sigma": 0.5471397702718072
+  },
+  {
+   "instance": "instance_022",
+   "makespan": 356.0,
+   "queue_h": 4719.0,
+   "wait_h": 3908.0,
+   "sigma": 0.5470035933696534
+  },
+  {
+   "instance": "instance_023",
+   "makespan": 361.0,
+   "queue_h": 4382.0,
+   "wait_h": 4211.0,
+   "sigma": 0.5099499592691726
+  },
+  {
+   "instance": "instance_024",
+   "makespan": 362.0,
+   "queue_h": 4621.0,
+   "wait_h": 4004.0,
+   "sigma": 0.535768115942029
+  },
+  {
+   "instance": "instance_025",
+   "makespan": 360.0,
+   "queue_h": 4941.0,
+   "wait_h": 4153.0,
+   "sigma": 0.5433252694084011
+  },
+  {
+   "instance": "instance_026",
+   "makespan": 357.0,
+   "queue_h": 4195.0,
+   "wait_h": 4240.0,
+   "sigma": 0.4973325429756965
+  },
+  {
+   "instance": "instance_027",
+   "makespan": 357.0,
+   "queue_h": 4430.0,
+   "wait_h": 4213.0,
+   "sigma": 0.5125535115122064
+  },
+  {
+   "instance": "instance_028",
+   "makespan": 351.0,
+   "queue_h": 3925.0,
+   "wait_h": 4231.0,
+   "sigma": 0.4812408043158411
+  },
+  {
+   "instance": "instance_029",
+   "makespan": 363.0,
+   "queue_h": 4686.0,
+   "wait_h": 4144.0,
+   "sigma": 0.5306908267270668
+  },
+  {
+   "instance": "instance_030",
+   "makespan": 347.0,
+   "queue_h": 4346.0,
+   "wait_h": 3867.0,
+   "sigma": 0.5291610860830391
+  },
+  {
+   "instance": "instance_031",
+   "makespan": 353.0,
+   "queue_h": 4018.0,
+   "wait_h": 4094.0,
+   "sigma": 0.4953155818540434
+  },
+  {
+   "instance": "instance_032",
+   "makespan": 354.0,
+   "queue_h": 4418.0,
+   "wait_h": 4192.0,
+   "sigma": 0.5131242740998838
+  },
+  {
+   "instance": "instance_033",
+   "makespan": 350.0,
+   "queue_h": 4680.0,
+   "wait_h": 3894.0,
+   "sigma": 0.5458362491252624
+  },
+  {
+   "instance": "instance_034",
+   "makespan": 369.0,
+   "queue_h": 4921.0,
+   "wait_h": 3976.0,
+   "sigma": 0.5531077891424075
+  },
+  {
+   "instance": "instance_035",
+   "makespan": 353.0,
+   "queue_h": 4587.0,
+   "wait_h": 3952.0,
+   "sigma": 0.5371823398524418
+  },
+  {
+   "instance": "instance_036",
+   "makespan": 353.0,
+   "queue_h": 4352.0,
+   "wait_h": 4137.0,
+   "sigma": 0.5126634468135234
+  },
+  {
+   "instance": "instance_037",
+   "makespan": 354.0,
+   "queue_h": 4276.0,
+   "wait_h": 4054.0,
+   "sigma": 0.5133253301320528
+  },
+  {
+   "instance": "instance_038",
+   "makespan": 372.0,
+   "queue_h": 5726.0,
+   "wait_h": 4015.0,
+   "sigma": 0.5878246586592752
+  },
+  {
+   "instance": "instance_039",
+   "makespan": 352.0,
+   "queue_h": 4401.0,
+   "wait_h": 3902.0,
+   "sigma": 0.5300493797422619
+  },
+  {
+   "instance": "instance_040",
+   "makespan": 363.0,
+   "queue_h": 4667.0,
+   "wait_h": 4175.0,
+   "sigma": 0.5278217597828545
+  },
+  {
+   "instance": "instance_041",
+   "makespan": 356.0,
+   "queue_h": 4708.0,
+   "wait_h": 3922.0,
+   "sigma": 0.5455388180764774
+  },
+  {
+   "instance": "instance_042",
+   "makespan": 350.0,
+   "queue_h": 3953.0,
+   "wait_h": 4070.0,
+   "sigma": 0.4927084631683909
+  },
+  {
+   "instance": "instance_043",
+   "makespan": 357.0,
+   "queue_h": 4708.0,
+   "wait_h": 4098.0,
+   "sigma": 0.5346354758119464
+  },
+  {
+   "instance": "instance_044",
+   "makespan": 365.0,
+   "queue_h": 5076.0,
+   "wait_h": 4060.0,
+   "sigma": 0.5556042031523643
+  },
+  {
+   "instance": "instance_045",
+   "makespan": 357.0,
+   "queue_h": 4879.0,
+   "wait_h": 3938.0,
+   "sigma": 0.5533628218214812
+  },
+  {
+   "instance": "instance_046",
+   "makespan": 359.0,
+   "queue_h": 4798.0,
+   "wait_h": 3958.0,
+   "sigma": 0.5479671082686158
+  },
+  {
+   "instance": "instance_047",
+   "makespan": 364.0,
+   "queue_h": 4134.0,
+   "wait_h": 4494.0,
+   "sigma": 0.47913769123783034
+  },
+  {
+   "instance": "instance_048",
+   "makespan": 359.0,
+   "queue_h": 4178.0,
+   "wait_h": 4220.0,
+   "sigma": 0.49749940462014763
+  },
+  {
+   "instance": "instance_049",
+   "makespan": 362.0,
+   "queue_h": 4834.0,
+   "wait_h": 4056.0,
+   "sigma": 0.5437570303712036
+  }
+ ]
+}

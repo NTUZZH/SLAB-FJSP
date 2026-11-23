@@ -108,9 +108,11 @@ ARCH_KEYS = (
     'num_mlp_layers_critic', 'hidden_dim_critic',
     'dropout_prob',
     'framework',
-    # not a shape flag: the lower-bound variant the policy was trained with
-    # (it enters the op features), applied to the model rollouts only
-    'bound_lag_free',
+    # not shape flags: the lower-bound variant the policy was trained with
+    # (the feature bound enters the op features), applied to the model
+    # rollouts only; the reward bound is applied too, so the evaluation env is
+    # the training env, although a greedy rollout never reads the reward
+    'bound_lag_free', 'bound_lag_free_reward', 'bound_lag_free_features',
 )
 
 
@@ -164,14 +166,17 @@ def detect_route_variant(data_path, cli_value):
     return 'fixed'
 
 
-def _make_env(n_j, n_m, use_lag_features, bound_lag_free=False):
+def _make_env(n_j, n_m, use_lag_features, bound_lag_free=False,
+              bound_lag_free_reward=False, bound_lag_free_features=False):
     """Environment for the dataset's route variant: variable routes (modules
     with different op counts) use FJSPEnvForVariousOpNums, fixed routes the
     original FJSPEnvForSameOpNums. bound_lag_free selects the lag-free
-    lower bound (fixed routes only)."""
+    lower bound in reward and features, bound_lag_free_reward /
+    bound_lag_free_features in one of them (fixed routes only)."""
     if ROUTE_VARIANT == 'variable':
-        if bound_lag_free:
-            sys.exit('[eval_ppvc] bound_lag_free is not wired for variable routes')
+        if bound_lag_free or bound_lag_free_reward or bound_lag_free_features:
+            sys.exit('[eval_ppvc] bound_lag_free[_reward|_features] is not wired '
+                     'for variable routes')
         from fjsp_env_various_op_nums import FJSPEnvForVariousOpNums
         return FJSPEnvForVariousOpNums(n_j=n_j, n_m=n_m,
                                        use_lag_features=use_lag_features,
@@ -179,7 +184,9 @@ def _make_env(n_j, n_m, use_lag_features, bound_lag_free=False):
     from fjsp_env_same_op_nums import FJSPEnvForSameOpNums
     return FJSPEnvForSameOpNums(n_j=n_j, n_m=n_m,
                                 use_lag_features=use_lag_features,
-                                bound_lag_free=bound_lag_free)
+                                bound_lag_free=bound_lag_free,
+                                bound_lag_free_reward=bound_lag_free_reward,
+                                bound_lag_free_features=bound_lag_free_features)
 
 
 def _model_bound_lag_free():
@@ -187,9 +194,25 @@ def _model_bound_lag_free():
     return bool(getattr(configs, 'bound_lag_free', False))
 
 
+def _model_bound_kwargs():
+    """The three lower-bound flags of the loaded model (set from its snapshot;
+    snapshots written before a flag existed leave it at its default, False)."""
+    return {k: bool(getattr(configs, k, False))
+            for k in ('bound_lag_free', 'bound_lag_free_reward', 'bound_lag_free_features')}
+
+
+def _bound_note():
+    """Flags of the split bound ablation that are set, for the logs."""
+    kw = _model_bound_kwargs()
+    return ''.join(f'{k}=True  ' for k in ('bound_lag_free_reward', 'bound_lag_free_features')
+                   if kw[k])
+
+
 def _new_env(jl, pt, meta, use_lag_features, use_type_embedding,
-             bound_lag_free=False):
-    env = _make_env(jl.shape[0], pt.shape[1], use_lag_features, bound_lag_free)
+             bound_lag_free=False, bound_lag_free_reward=False,
+             bound_lag_free_features=False):
+    env = _make_env(jl.shape[0], pt.shape[1], use_lag_features, bound_lag_free,
+                    bound_lag_free_reward, bound_lag_free_features)
     kwargs = dict(time_lag_list=[meta['time_lag']])
     if use_type_embedding:
         kwargs['op_type_list'] = [meta['op_type']]
@@ -230,7 +253,7 @@ def rollout_greedy(ppo, jl, pt, meta, use_lag_features, use_type_embedding):
     M = pt.shape[1]
     n_ops = pt.shape[0]
     env, state = _new_env(jl, pt, meta, use_lag_features, use_type_embedding,
-                          bound_lag_free=_model_bound_lag_free())
+                          **_model_bound_kwargs())
     assigned_mch = np.full(n_ops, -1, dtype=int)
     t1 = time.time()
     while True:
@@ -270,7 +293,7 @@ def rollout_sampling(ppo, jl, pt, meta, use_lag_features, use_type_embedding,
     from common_utils import sample_action
     M = pt.shape[1]
     n_ops = pt.shape[0]
-    env = _make_env(jl.shape[0], M, use_lag_features, _model_bound_lag_free())
+    env = _make_env(jl.shape[0], M, use_lag_features, **_model_bound_kwargs())
     jl_b = np.tile(np.expand_dims(jl, 0), (sample_times, 1))
     pt_b = np.tile(np.expand_dims(pt, 0), (sample_times, 1, 1))
     kwargs = dict(time_lag_list=[meta['time_lag']] * sample_times)
@@ -421,7 +444,7 @@ def main():
           f'use_lag_features={use_lag_features}  '
           f'use_type_embedding={use_type_embedding}  '
           f'bound_lag_free={_model_bound_lag_free()}  '
-          f'seed_test={args.seed_test}')
+          + _bound_note() + f'seed_test={args.seed_test}')
     print(f'  methods={methods}'
           + (f'  sample_times={args.sample_times}' if 'sampling' in methods
              else ''))
@@ -490,7 +513,11 @@ def main():
                  f'n_op_types={getattr(configs, "n_op_types", "?")}, '
                  f'n_mch_types={getattr(configs, "n_mch_types", "?")}'
                  + (', bound_lag_free=True (model rollouts)'
-                    if _model_bound_lag_free() else ''))
+                    if _model_bound_lag_free() else '')
+                 + (', bound_lag_free_features=True (model rollouts)'
+                    if _model_bound_kwargs()['bound_lag_free_features'] else '')
+                 + (', bound_lag_free_reward=True (training reward only)'
+                    if _model_bound_kwargs()['bound_lag_free_reward'] else ''))
 
     if ref:
         cov = sum(1 for b in bases if b in ref)

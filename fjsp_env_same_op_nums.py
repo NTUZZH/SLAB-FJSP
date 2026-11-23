@@ -104,7 +104,8 @@ class FJSPEnvForSameOpNums:
         fea_pairs: pair features with shape [sz_b, J, M, 8]
     """
 
-    def __init__(self, n_j, n_m, use_lag_features=False, bound_lag_free=False):
+    def __init__(self, n_j, n_m, use_lag_features=False, bound_lag_free=False,
+                 bound_lag_free_reward=False, bound_lag_free_features=False):
         """
         :param n_j: the number of jobs
         :param n_m: the number of machines
@@ -113,12 +114,19 @@ class FJSPEnvForSameOpNums:
                 operation features (op_fea_dim 10 -> 12). False reproduces
                 the original DANIEL feature set exactly.
         :param bound_lag_free: (ablation of Adaptation 2a) if True, the
-                completion-time lower bound op_ct_lb omits the predecessor
-                time-lag term (the original DANIEL per-job cumsum of min
-                processing times), while the dynamics keep the lags. The
-                bound then under-estimates lagged completion times; it is
-                corrected only as operations are scheduled. False (default)
-                keeps the lag-augmented bound.
+                completion-time lower bound omits the predecessor time-lag
+                term (the original DANIEL per-job cumsum of min processing
+                times) in both the reward and the state features, while the
+                dynamics keep the lags. The bound then under-estimates lagged
+                completion times; it is corrected only as operations are
+                scheduled. False (default) keeps the lag-augmented bound.
+        :param bound_lag_free_reward: as bound_lag_free, for the reward only
+                (the bound array op_ct_lb_rw).
+        :param bound_lag_free_features: as bound_lag_free, for the bound
+                channel of the operation features only (the array op_ct_lb).
+                Both arrays are seeded and shifted with realized completions in
+                the same way; with all three flags False they are equal at
+                every step and the environment is the lag-augmented one.
         """
         self.number_of_jobs = n_j
         self.number_of_machines = n_m
@@ -126,6 +134,11 @@ class FJSPEnvForSameOpNums:
 
         self.use_lag_features = use_lag_features
         self.bound_lag_free = bound_lag_free
+        self.bound_lag_free_reward = bound_lag_free_reward
+        self.bound_lag_free_features = bound_lag_free_features
+        # lag-free bound in the reward / in the op features
+        self.lf_reward = bool(bound_lag_free or bound_lag_free_reward)
+        self.lf_feat = bool(bound_lag_free or bound_lag_free_features)
         # the dimension of operation raw features
         self.op_fea_dim = 12 if use_lag_features else 10
         # the dimension of machine raw features
@@ -238,15 +251,21 @@ class FJSPEnvForSameOpNums:
         # so each op's PREDECESSOR lag is added before the per-job cumsum.
         # This keeps the C_LB-based reward admissible under time-lags; with
         # zero lags the arithmetic is identical to original DANIEL.
-        self.op_ct_lb = copy.deepcopy(self.op_min_pt)
+        # Two arrays carry the bound: op_ct_lb enters the op features,
+        # op_ct_lb_rw the reward. Each is the lag-augmented bound (lb_aug) or,
+        # under the bound ablation flags, the lag-free one (lb_free).
+        lb_aug = copy.deepcopy(self.op_min_pt)
+        lb_free = copy.deepcopy(self.op_min_pt)
         for k in range(self.number_of_envs):
             for i in range(self.number_of_jobs):
                 first = self.job_first_op_id[k][i]
                 last = self.job_last_op_id[k][i]
-                seg = self.op_ct_lb[k][first:last + 1]
-                if not self.bound_lag_free:
-                    seg[1:] += self.op_lag[k][first:last]
-                self.op_ct_lb[k][first:last + 1] = np.cumsum(seg)
+                seg = lb_aug[k][first:last + 1]
+                seg[1:] += self.op_lag[k][first:last]
+                lb_aug[k][first:last + 1] = np.cumsum(seg)
+                lb_free[k][first:last + 1] = np.cumsum(lb_free[k][first:last + 1])
+        self.op_ct_lb = np.copy(lb_free if self.lf_feat else lb_aug)
+        self.op_ct_lb_rw = np.copy(lb_free if self.lf_reward else lb_aug)
 
         # job remaining number of operations
         self.op_match_job_left_op_nums = np.array([np.repeat(self.job_length[k],
@@ -263,8 +282,8 @@ class FJSPEnvForSameOpNums:
 
         self.construct_op_features()
 
-        # shape reward
-        self.init_quality = np.max(self.op_ct_lb, axis=1)
+        # shape reward (from the reward bound array)
+        self.init_quality = np.max(self.op_ct_lb_rw, axis=1)
 
         self.max_endTime = self.init_quality
         """
@@ -299,6 +318,7 @@ class FJSPEnvForSameOpNums:
         self.old_op_mask = np.copy(self.op_mask)
         self.old_mch_mask = np.copy(self.mch_mask)
         self.old_op_ct_lb = np.copy(self.op_ct_lb)
+        self.old_op_ct_lb_rw = np.copy(self.op_ct_lb_rw)
         self.old_op_match_job_left_op_nums = np.copy(self.op_match_job_left_op_nums)
         self.old_op_match_job_remain_work = np.copy(self.op_match_job_remain_work)
         self.old_init_quality = np.copy(self.init_quality)
@@ -321,6 +341,7 @@ class FJSPEnvForSameOpNums:
         self.op_mask = np.copy(self.old_op_mask)
         self.mch_mask = np.copy(self.old_mch_mask)
         self.op_ct_lb = np.copy(self.old_op_ct_lb)
+        self.op_ct_lb_rw = np.copy(self.old_op_ct_lb_rw)
         self.op_match_job_left_op_nums = np.copy(self.old_op_match_job_left_op_nums)
         self.op_match_job_remain_work = np.copy(self.old_op_match_job_remain_work)
         self.init_quality = np.copy(self.old_init_quality)
@@ -469,6 +490,9 @@ class FJSPEnvForSameOpNums:
                 (self.op_idx < (self.job_last_op_id[self.env_idxs, chosen_job] + 1)[:,
                                np.newaxis])
         self.op_ct_lb[mask1] += np.tile(diff[:, np.newaxis], (1, self.number_of_ops))[mask1]
+        # the reward bound array takes the same shift with its own offset
+        diff_rw = self.op_ct[self.env_idxs, chosen_op] - self.op_ct_lb_rw[self.env_idxs, chosen_op]
+        self.op_ct_lb_rw[mask1] += np.tile(diff_rw[:, np.newaxis], (1, self.number_of_ops))[mask1]
 
         mask2 = (self.op_idx >= (self.job_first_op_id[self.env_idxs, chosen_job])[:,
                                 np.newaxis]) & \
@@ -526,9 +550,10 @@ class FJSPEnvForSameOpNums:
 
         self.construct_pair_features()
 
-        # compute the reward : R_t = C_{LB}(s_{t}) - C_{LB}(s_{t+1})
-        reward = self.max_endTime - np.max(self.op_ct_lb, axis=1)
-        self.max_endTime = np.max(self.op_ct_lb, axis=1)
+        # compute the reward : R_t = C_{LB}(s_{t}) - C_{LB}(s_{t+1}),
+        # from the reward bound array (op_ct_lb_rw)
+        reward = self.max_endTime - np.max(self.op_ct_lb_rw, axis=1)
+        self.max_endTime = np.max(self.op_ct_lb_rw, axis=1)
 
         # update the state
         self.state.update(self.fea_j, self.op_mask, self.fea_m, self.mch_mask,

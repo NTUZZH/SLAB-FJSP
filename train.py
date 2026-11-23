@@ -114,8 +114,9 @@ class Trainer:
                     '--ppvc_route_variant variable is not wired for --ppvc_size_mix'
                 self.data_name = f'{self.data_name}-var'
             # the lag-free bound ablation is wired for the fixed-route env only
-            assert not (config.bound_lag_free and self.ppvc_variable), \
-                '--bound_lag_free is not wired for --ppvc_route_variant variable'
+            assert not ((config.bound_lag_free or config.bound_lag_free_reward
+                         or config.bound_lag_free_features) and self.ppvc_variable), \
+                '--bound_lag_free[_reward|_features] is not wired for --ppvc_route_variant variable'
             # keep the network input width in sync with the env feature width
             # (must happen BEFORE PPO_initialize reads the config)
             if config.use_lag_features:
@@ -148,7 +149,9 @@ class Trainer:
         else:
             self.env = FJSPEnvForSameOpNums(self.n_j, self.n_m,
                                             use_lag_features=config.use_lag_features,
-                                            bound_lag_free=config.bound_lag_free)
+                                            bound_lag_free=config.bound_lag_free,
+                                            bound_lag_free_reward=config.bound_lag_free_reward,
+                                            bound_lag_free_features=config.bound_lag_free_features)
 
         # single-size PPVC training validates at several module counts when
         # --ppvc_vali_sizes is given and names a size other than n_j; the data
@@ -170,7 +173,9 @@ class Trainer:
                                             save_dir=None, n_modules=sz)
                 env = FJSPEnvForSameOpNums(sz, self.n_m,
                                            use_lag_features=config.use_lag_features,
-                                           bound_lag_free=config.bound_lag_free)
+                                           bound_lag_free=config.bound_lag_free,
+                                           bound_lag_free_reward=config.bound_lag_free_reward,
+                                           bound_lag_free_features=config.bound_lag_free_features)
                 env.set_initial_data(vd[0], vd[1], time_lag_list=vd[2],
                                      op_type_list=vd[3], mch_type_list=vd[4])
                 self.vali_envs.append((sz, env))
@@ -198,7 +203,9 @@ class Trainer:
                 else:
                     env = FJSPEnvForSameOpNums(sz, self.n_m,
                                                use_lag_features=config.use_lag_features,
-                                               bound_lag_free=config.bound_lag_free)
+                                               bound_lag_free=config.bound_lag_free,
+                                               bound_lag_free_reward=config.bound_lag_free_reward,
+                                               bound_lag_free_features=config.bound_lag_free_features)
                 env.set_initial_data(vd[0], vd[1], time_lag_list=vd[2],
                                      op_type_list=vd[3], mch_type_list=vd[4])
                 self.vali_envs.append((sz, env))
@@ -221,7 +228,9 @@ class Trainer:
             else:
                 self.vali_env = FJSPEnvForSameOpNums(self.n_j, self.n_m,
                                                      use_lag_features=config.use_lag_features,
-                                                     bound_lag_free=config.bound_lag_free)
+                                                     bound_lag_free=config.bound_lag_free,
+                                                     bound_lag_free_reward=config.bound_lag_free_reward,
+                                                     bound_lag_free_features=config.bound_lag_free_features)
             self.vali_env.set_initial_data(vali_data[0], vali_data[1],
                                            time_lag_list=vali_data[2],
                                            op_type_list=vali_data[3],
@@ -290,7 +299,9 @@ class Trainer:
                     self.env = FJSPEnvForSameOpNums(
                         self.n_j, self.n_m,
                         use_lag_features=self.config.use_lag_features,
-                        bound_lag_free=self.config.bound_lag_free)
+                        bound_lag_free=self.config.bound_lag_free,
+                        bound_lag_free_reward=self.config.bound_lag_free_reward,
+                        bound_lag_free_features=self.config.bound_lag_free_features)
                 dataset_job_length, dataset_op_pt, dataset_lag, dataset_op_type, dataset_mch_type \
                     = self.sample_training_instances()
                 if self.data_source == 'PPVC':
