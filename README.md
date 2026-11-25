@@ -64,7 +64,6 @@ With every extension flag disabled, this implementation reproduces the published
 | `backbones/hgnn/` | HGNN scheduler (Song et al.) with a time-lag environment, training and evaluation scripts, and five trained runs |
 | `fjsp_env_same_op_nums.py`, `fjsp_env_various_op_nums.py` | FJSP and FJSP-TL environments |
 | `ppvc_instance_generator.py` | PPVC instance generator |
-| `make_*_testsets.py` | writers of the 50- and 80-module, independent, variable-route, and scaled-wait test sets |
 | `eval_*.py`, `run_cpsat_ppvc.py`, `ortools_solver.py` | evaluation of policies, dispatching rules, metaheuristics, and CP-SAT |
 | `stats_tests.py` | paired Wilcoxon tests, Holm adjustment, rank-biserial effect size, bootstrap intervals |
 | `make_paper_macros.py`, `make_supplement_tables.py` | every number and table of the paper and its supplement, computed from the result files |
@@ -75,8 +74,10 @@ With every extension flag disabled, this implementation reproduces the published
 | `test_results/PPVC/`, `or_solution/PPVC/` | per-instance result files and CP-SAT reference and anytime records |
 | `train_log/PPVC/` | resolved training configurations and validation curves of the trained policies |
 | `paper_inputs/` | result files of the cost measurement and of two figures, read by the table generators |
-| `run_*.sh` | training and evaluation campaign drivers |
-| `test_*.py` | unit and regression tests |
+| `scripts/` | training and evaluation campaign drivers (`run_*.sh`), writers of the test sets (`make_*_testsets.py`), and utilities for result records |
+| `analysis/` | analyses of the result files (bound tightness and signal, CP-SAT regimes, paired tests, station load) |
+| `figures/` | scripts that draw the figures; output goes to `figures_src/` |
+| `tests/` | unit and regression tests |
 
 The DANIEL base benchmarks (SD1, SD2, BenchData), training-time logs, and solver logs are not tracked
 (see `.gitignore`).
@@ -153,9 +154,9 @@ the 15-station factory the tight preset, and the 9-station factory the small pre
 | `50x20+ppvc-mixed-ood`, `50x30+...`, `50x35+...` | 50 | 20, 30, 35 | 50 each | 100000 | the orders of the 50-module set on factories of 20, 30, or 35 stations |
 
 The independent sets use seed ranges that no other test set and no training run uses. They are written by
-`make_independent_testsets.py`. The 50- and 80-module sets are written by `make_scale_testsets.py`, the
-variable-route sets of 50 and 80 modules by `make_var_testsets.py`, the scaled-wait sets of factor 1.5 by
-`make_lagscaled_testsets.py`, and the other shifted sets by `make_ood_testsets.py`. Each shifted order is
+`scripts/make_independent_testsets.py`. The 50- and 80-module sets are written by `scripts/make_scale_testsets.py`, the
+variable-route sets of 50 and 80 modules by `scripts/make_var_testsets.py`, the scaled-wait sets of factor 1.5 by
+`scripts/make_lagscaled_testsets.py`, and the other shifted sets by `scripts/make_ood_testsets.py`. Each shifted order is
 built from the generator seed of its nominal twin and differs from it in the changed property only
 (`dataset_meta.json` records the source set). Each script recreates its sets from the generator and never overwrites an
 existing instance file. The two validation sets in `data/data_train_vali/PPVC/` hold 100 orders each
@@ -189,13 +190,15 @@ The HGNN runs are in `backbones/hgnn/save/<run>/` (`best.pt`, `last.pt`, `run_co
 
 ## Evaluation scripts
 
+Every script runs from the repository root, for example `python analysis/analysis_cpsat_regimes.py`.
+
 | Script | What it measures |
 |---|---|
 | `eval_ppvc.py` | greedy and sampling rollouts of a policy, and the dispatching rules, on a test set; every schedule is validated |
 | `eval_a0_repair.py` | a policy trained without waits plans on a wait-free environment, and the plan is right-shift repaired to the true waits |
 | `eval_memetic.py` | memetic algorithm for the job shop with time-lags (Caumond, Lacomme, Tchernev, 2008), extended with machine assignment, under a wall-clock budget; `--fast_eval` uses the exact compiled evaluator of `fast_lpath.py`, `--pm` sets the local-search rate (the paper uses 1.0), `--instances LO:HI` runs a range of orders |
 | `fast_lpath.py` | exact longest-path schedule evaluator and decoders, bit-identical to `right_shift_repair.py`; compiled with numba when it is installed, plain Python otherwise |
-| `merge_memetic_parts.py` | merges the per-range result files of `eval_memetic.py --instances` into one result file |
+| `scripts/merge_memetic_parts.py` | merges the per-range result files of `eval_memetic.py --instances` into one result file |
 | `eval_ga.py` | two-vector genetic algorithm for the FJSP with the same lag semantics |
 | `eval_cpsat_anytime.py` | CP-SAT on the lag-aware model, cold or warm-started from a rule or policy schedule, with the incumbent trajectory over time |
 | `eval_cpsat_budget.py`, `eval_cpsat_warmstart.py` | CP-SAT under short budgets, cold and warm-started from the SPT schedule |
@@ -203,14 +206,14 @@ The HGNN runs are in `backbones/hgnn/save/<run>/` (`best.pt`, `last.pt`, `run_co
 | `eval_reactive.py` | re-planning after six disruption types (longer wait, machine breakdown, urgent order, material shortage, processing-time deviation, cancellation) by the policy, rule re-planners (SPTL, SPT, LLF), a genetic algorithm, and right-shift repair; `--breakdown_hours` sets the outage length, `--fast_eval` the compiled GA decoder |
 | `eval_residual_cpsat.py` | CP-SAT re-solving only the unstarted part of a disrupted schedule under a time budget, started from the right-shifted plan; `--match_reactive` asserts the same disrupted states as `eval_reactive.py`, `--stability_sweep` adds a penalty per changed operation |
 | `eval_shell_projects.py` | single-shell test sets (seed audit, generation, evaluation, paired tests) |
-| `analysis_bound_tightness.py` | ratio of the lag-augmented and the lag-free bound to the final makespan along the policy's schedules, with an admissibility check on every state |
-| `analysis_stats_tables_7_9.py` | paired tests with Holm adjustment for the training options, the uncertain-wait study, and the disruption study |
-| `analysis_cpsat_time_to_slab.py` | time CP-SAT needs to reach the policy's makespan, from the anytime logs |
+| `analysis/analysis_bound_tightness.py` | ratio of the lag-augmented and the lag-free bound to the final makespan along the policy's schedules, with an admissibility check on every state |
+| `analysis/analysis_stats_tables_7_9.py` | paired tests with Holm adjustment for the training options, the uncertain-wait study, and the disruption study |
+| `analysis/analysis_cpsat_time_to_slab.py` | time CP-SAT needs to reach the policy's makespan, from the anytime logs |
 | `eval_buffers.py` | number of lag-buffer slots that schedules use, and the makespan when the buffer is finite |
 | `eval_wip_peaks.py` | peak and 95th percentile of the work in progress and peak and mean occupancy of the waiting areas, per order, for policy and rule schedules |
 | `eval_ood.py` | the SLAB policy and the SPT and LLF rules on the shifted test sets and their nominal twins, with the lag-augmented bound of every order |
-| `analysis_bound_signal.py` | share of decision steps with zero reward under the lag-augmented and the lag-free bound, and a capacity-based relaxation of each order |
-| `analysis_cpsat_regimes.py` | CP-SAT makespan read at fixed solver times and at the time of one SLAB schedule, from the anytime records |
+| `analysis/analysis_bound_signal.py` | share of decision steps with zero reward under the lag-augmented and the lag-free bound, and a capacity-based relaxation of each order |
+| `analysis/analysis_cpsat_regimes.py` | CP-SAT makespan read at fixed solver times and at the time of one SLAB schedule, from the anytime records |
 | `eval_buffer_occupancy.py` | lag-buffer occupancy of the policy and rule schedules |
 | `eval_flowline.py` | makespan when every operation keeps one station of its type (flow-line routing) |
 | `eval_byproducts.py` | flow time, work in progress, station utilization, and tardiness of the makespan schedules |
@@ -219,8 +222,8 @@ The HGNN runs are in `backbones/hgnn/save/<run>/` (`best.pt`, `last.pt`, `run_co
 | `stats_tests.py` | paired Wilcoxon signed-rank tests with Holm adjustment, rank-biserial effect sizes, and bootstrap intervals of paired differences |
 | `make_paper_macros.py` | every number in the paper, with its source files and computation |
 | `make_supplement_tables.py` | every table of the supplement, checked against the paper's numbers |
-| `verify_pooling_invariance.py` | numerical check that deleted operations stay zero at every layer and never enter the pooled sets of the network with type embeddings |
-| `analyze_training_load.py` | station utilization and the share of waiting caused by station contention, by order size and wait scale |
+| `analysis/verify_pooling_invariance.py` | numerical check that deleted operations stay zero at every layer and never enter the pooled sets of the network with type embeddings |
+| `analysis/analyze_training_load.py` | station utilization and the share of waiting caused by station contention, by order size and wait scale |
 
 ## Citation
 
